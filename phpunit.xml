@@ -1,0 +1,25 @@
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+        >
+    <testsuites>
+        <testsuite name="General">
+            <file>tests/System/SystemTest.php</file>
+        </testsuite>
+        <testsuite name="X86">
+            <file>tests/System/SystemTestX86.php</file>
+        </testsuite>
+        <testsuite name="PPC">
+            <file>tests/System/SystemTestPPC.php</file>
+        </testsuite>
+        <testsuite name="ARM">
+            <file>tests/System/SystemTestARM.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
