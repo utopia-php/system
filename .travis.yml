@@ -5,6 +5,11 @@ arch:
 - ppc64le
 - arm64
 
+os:
+- linux
+- windows
+- osx
+
 php:
 - 7.4
 - 8.0
