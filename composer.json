@@ -1,6 +1,6 @@
 {
     "name": "utopia-php/system",
-    "description": "A simple system library to manage application translations",
+    "description": "A simple system library to obtaining information about the host's system.",
     "type": "library",
     "keywords": ["php","framework", "upf", "utopia", "system"],
     "license": "MIT",
@@ -9,6 +9,10 @@
         {
             "name": "Eldad Fux",
             "email": "eldad@appwrite.io"
+        },
+        {
+            "name": "Torsten Dittmann",
+            "email": "torsten@appwrite.io"
         }
     ],
     "autoload": {
