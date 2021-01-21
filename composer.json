@@ -1,6 +1,6 @@
 {
     "name": "utopia-php/system",
-    "description": "A simple system library to obtaining information about the host's system.",
+    "description": "A simple library for obtaining information about the host's system.",
     "type": "library",
     "keywords": ["php","framework", "upf", "utopia", "system"],
     "license": "MIT",
