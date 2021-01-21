@@ -9,8 +9,17 @@
          stopOnFailure="false"
         >
     <testsuites>
-        <testsuite name="Application Test Suite">
-            <directory>./tests/</directory>
+        <testsuite name="General">
+            <file>tests/System/SystemTest.php</file>
+        </testsuite>
+        <testsuite name="X86">
+            <file>tests/System/SystemTestX86.php</file>
+        </testsuite>
+        <testsuite name="PPC">
+            <file>tests/System/SystemTestPPC.php</file>
+        </testsuite>
+        <testsuite name="ARM">
+            <file>tests/System/SystemTestARM.php</file>
         </testsuite>
     </testsuites>
 </phpunit>
