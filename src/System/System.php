@@ -44,12 +44,22 @@ class System
     }
 
     /**
-     * Checks if the system is running on an ARM architecture.
+     * Checks if the system is running on an X86 architecture.
      * 
      * @return bool
      */
     public function isX86(): bool
     {
-        return preg_match('/(x86*|i386)/', $this->getArch());
+        return preg_match('/(x86*|i386|i686)/', $this->getArch());
+    }
+
+    /**
+     * Checks if the system is running on an PowerPC architecture.
+     * 
+     * @return bool
+     */
+    public function isPPC(): bool
+    {
+        return preg_match('/(ppc*)/', $this->getArch());
     }
 }
