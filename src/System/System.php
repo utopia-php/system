@@ -42,4 +42,14 @@ class System
     {
         return preg_match('/(aarch*|arm*)/', $this->getArch());
     }
+
+    /**
+     * Checks if the system is running on an ARM architecture.
+     * 
+     * @return bool
+     */
+    public function isX86(): bool
+    {
+        return preg_match('/(x86*|i386)/', $this->getArch());
+    }
 }
