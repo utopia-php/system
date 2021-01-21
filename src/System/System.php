@@ -40,7 +40,7 @@ class System
      */
     public function isArm(): bool
     {
-        return preg_match('/(aarch*|arm*)/', $this->getArch());
+        return !!preg_match('/(aarch*|arm*)/', $this->getArch());
     }
 
     /**
@@ -50,7 +50,7 @@ class System
      */
     public function isX86(): bool
     {
-        return preg_match('/(x86*|i386|i686)/', $this->getArch());
+        return !!preg_match('/(x86*|i386|i686)/', $this->getArch());
     }
 
     /**
@@ -60,6 +60,6 @@ class System
      */
     public function isPPC(): bool
     {
-        return preg_match('/(ppc*)/', $this->getArch());
+        return !!preg_match('/(ppc*)/', $this->getArch());
     }
 }

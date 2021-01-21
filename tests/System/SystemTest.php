@@ -34,7 +34,7 @@ class SystemTest extends TestCase
         $this->assertIsString($system->getOS());
         $this->assertIsString($system->getHostname());
         $this->assertIsBoolean($system->isArm());
-        $this->assertIsBoolean($system->isPPC());
+        $this->assertTrue($system->isPPC());
         $this->assertIsBoolean($system->isX86());
     }
 }
