@@ -30,8 +30,9 @@ class SystemTest extends TestCase
     {
         $system = new System();
 
-        $this->assertIsInt($system->getArch());
+        $this->assertIsString($system->getArch());
         $this->assertIsString($system->getOS());
         $this->assertIsString($system->getHostname());
+        $this->assertTrue($system->isArm());
     }
 }
