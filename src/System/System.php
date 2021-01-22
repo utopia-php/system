@@ -8,7 +8,7 @@ class System
      * Returns the system's OS.
      * @return string
      */
-    public function getOS(): string
+    static public function getOS(): string
     {
         return php_uname("s");
     }
@@ -18,7 +18,7 @@ class System
      * 
      * @return string
      */
-    public function getArch(): string
+    static public function getArch(): string
     {
         return php_uname("m");
     }
@@ -28,7 +28,7 @@ class System
      * 
      * @return string
      */
-    public function getHostname(): string
+    static public function getHostname(): string
     {
         return php_uname("n");
     }
@@ -38,9 +38,9 @@ class System
      * 
      * @return bool
      */
-    public function isArm(): bool
+    static public function isArm(): bool
     {
-        return !!preg_match('/(aarch*|arm*)/', $this->getArch());
+        return !!preg_match('/(aarch*|arm*)/', self::getArch());
     }
 
     /**
@@ -48,9 +48,9 @@ class System
      * 
      * @return bool
      */
-    public function isX86(): bool
+    static public function isX86(): bool
     {
-        return !!preg_match('/(x86*|i386|i686)/', $this->getArch());
+        return !!preg_match('/(x86*|i386|i686)/', self::getArch());
     }
 
     /**
@@ -58,8 +58,8 @@ class System
      * 
      * @return bool
      */
-    public function isPPC(): bool
+    static public function isPPC(): bool
     {
-        return !!preg_match('/(ppc*)/', $this->getArch());
+        return !!preg_match('/(ppc*)/', self::getArch());
     }
 }

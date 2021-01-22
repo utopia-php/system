@@ -28,13 +28,11 @@ class SystemTest extends TestCase
 
     public function testOs()
     {
-        $system = new System();
-
-        $this->assertIsString($system->getOS());
-        $this->assertIsString($system->getArch());
-        $this->assertIsString($system->getHostname());
-        $this->assertIsBool($system->isArm());
-        $this->assertIsBool($system->isPPC());
-        $this->assertIsBool($system->isX86());
+        $this->assertIsString(System::getOS());
+        $this->assertIsString(System::getArch());
+        $this->assertIsString(System::getHostname());
+        $this->assertIsBool(System::isArm());
+        $this->assertIsBool(System::isPPC());
+        $this->assertIsBool(System::isX86());
     }
 }

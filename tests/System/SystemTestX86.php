@@ -28,10 +28,8 @@ class SystemTestX86 extends TestCase
 
     public function testOs()
     {
-        $system = new System();
-
-        $this->assertFalse($system->isArm());
-        $this->assertFalse($system->isPPC());
-        $this->assertTrue($system->isX86());
+        $this->assertFalse(System::isArm());
+        $this->assertFalse(System::isPPC());
+        $this->assertTrue(System::isX86());
     }
 }
