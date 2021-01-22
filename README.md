@@ -1,6 +1,6 @@
 # Utopia System
 
-[![Build Status](https://travis-ci.org/utopia-php/system.svg?branch=master)](https://travis-ci.com/utopia-php/system)
+[![Build Status](https://travis-ci.org/utopia-php/system.svg?branch=main)](https://travis-ci.com/utopia-php/system)
 ![Total Downloads](https://img.shields.io/packagist/dt/utopia-php/system.svg)
 [![Discord](https://img.shields.io/discord/564160730845151244?label=discord)](https://appwrite.io/discord)
 
@@ -23,7 +23,13 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Utopia\System\System;
 
-echo "This system is running on: " . System::getOS(); // prints "Linux" for example
+echo System::getOS(); // prints "Linux" for example
+echo System::getHostname(); // Your hostname
+echo System::getArcho(); // x86_64
+
+echo System::isArm(); // bool
+echo System::isPPC(); // bool
+echo System::isX86(); // bool
 ```
 
 ## System Requirements
