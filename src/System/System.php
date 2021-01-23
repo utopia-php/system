@@ -54,6 +54,16 @@ class System
     }
 
     /**
+     * Checks if the system is running on an X64 architecture.
+     * 
+     * @return bool
+     */
+    static public function isX64(): bool
+    {
+        return !!preg_match('/(AMD64)/', self::getArch());
+    }
+
+    /**
      * Checks if the system is running on an PowerPC architecture.
      * 
      * @return bool
