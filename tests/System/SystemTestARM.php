@@ -31,5 +31,8 @@ class SystemTestARM extends TestCase
         $this->assertTrue(System::isArm());
         $this->assertFalse(System::isPPC());
         $this->assertFalse(System::isX86());
+        $this->assertTrue(System::isArch(System::ARM));
+        $this->assertFalse(System::isArch(System::PPC));
+        $this->assertFalse(System::isArch(System::X86));
     }
 }

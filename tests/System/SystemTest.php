@@ -34,5 +34,8 @@ class SystemTest extends TestCase
         $this->assertIsBool(System::isArm());
         $this->assertIsBool(System::isPPC());
         $this->assertIsBool(System::isX86());
+        $this->assertIsBool(System::isArch(System::ARM));
+        $this->assertIsBool(System::isArch(System::X86));
+        $this->assertIsBool(System::isArch(System::PPC));
     }
 }
