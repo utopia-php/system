@@ -30,6 +30,7 @@ class SystemTest extends TestCase
     {
         $this->assertIsString(System::getOS());
         $this->assertIsString(System::getArch());
+        $this->assertIsString(System::getArchEnum());
         $this->assertIsString(System::getHostname());
         $this->assertIsBool(System::isArm());
         $this->assertIsBool(System::isPPC());
@@ -37,5 +38,7 @@ class SystemTest extends TestCase
         $this->assertIsBool(System::isArch(System::ARM));
         $this->assertIsBool(System::isArch(System::X86));
         $this->assertIsBool(System::isArch(System::PPC));
+        $this->expectException("Exception");
+        System::isArch("throw");
     }
 }

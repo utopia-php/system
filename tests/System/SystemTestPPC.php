@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Utopia PHP Framework
  *
@@ -31,8 +32,11 @@ class SystemTestPPC extends TestCase
         $this->assertFalse(System::isArm());
         $this->assertTrue(System::isPPC());
         $this->assertFalse(System::isX86());
+
         $this->assertFalse(System::isArch(System::ARM));
         $this->assertTrue(System::isArch(System::PPC));
         $this->assertFalse(System::isArch(System::X86));
+
+        $this->assertEquals(System::PPC, System::getArchEnum());
     }
 }

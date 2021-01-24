@@ -10,6 +10,10 @@ class System
     public const PPC = 'ppc';
     public const ARM = 'arm';
 
+    private const RegExX86 = '/(x86*|i386|i686)/';
+    private const RegExPPC = '/(aarch*|arm*)/';
+    private const RegExARM = '/(ppc*)/';
+
     /**
      * Returns the system's OS.
      * @return string
@@ -30,6 +34,33 @@ class System
     }
 
     /**
+     * Returns the architecture's Enum of the system's processor.
+     * 
+     * @return string
+     * 
+     * @throws Exeption
+     */
+    static public function getArchEnum(): string
+    {
+        $arch = self::getArch();
+        switch (1) {
+            case preg_match(self::RegExX86, $arch):
+                return System::X86;
+                break;
+            case preg_match(self::RegExPPC, $arch):
+                return System::PPC;
+                break;
+            case preg_match(self::RegExARM, $arch):
+                return System::ARM;
+                break;
+
+            default:
+                throw new Exception("'{$arch}' enum not found.");
+                break;
+        }
+    }
+
+    /**
      * Returns the system's hostname.
      * 
      * @return string
@@ -46,7 +77,7 @@ class System
      */
     static public function isArm(): bool
     {
-        return !!preg_match('/(aarch*|arm*)/', self::getArch());
+        return !!preg_match(self::RegExARM, self::getArch());
     }
 
     /**
@@ -56,7 +87,7 @@ class System
      */
     static public function isX86(): bool
     {
-        return !!preg_match('/(x86*|i386|i686)/', self::getArch());
+        return !!preg_match(self::RegExX86, self::getArch());
     }
 
     /**
@@ -66,7 +97,7 @@ class System
      */
     static public function isPPC(): bool
     {
-        return !!preg_match('/(ppc*)/', self::getArch());
+        return !!preg_match(self::RegExPPC, self::getArch());
     }
 
     /**
