@@ -43,13 +43,13 @@ class System
         $arch = self::getArch();
         switch (1) {
             case preg_match(self::RegExX86, $arch):
-                return true;
+                return System::X86;
                 break;
             case preg_match(self::RegExPPC, $arch):
-                return true;
+                return System::PPC;
                 break;
             case preg_match(self::RegExARM, $arch):
-                return true;
+                return System::ARM;
                 break;
 
             default:
