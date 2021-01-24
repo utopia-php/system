@@ -37,6 +37,8 @@ class System
      * Returns the architecture's Enum of the system's processor.
      * 
      * @return string
+     * 
+     * @throws Exeption
      */
     static public function getArchEnum(): string
     {
