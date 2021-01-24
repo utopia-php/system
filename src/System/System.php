@@ -6,9 +6,9 @@ use Exception;
 
 class System
 {
-    static public const X86 = 'x86';
-    static public const PPC = 'ppc';
-    static public const ARM = 'arm';
+    public const X86 = 'x86';
+    public const PPC = 'ppc';
+    public const ARM = 'arm';
 
     /**
      * Returns the system's OS.
