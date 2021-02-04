@@ -11,8 +11,8 @@ class System
     public const ARM = 'arm';
 
     private const RegExX86 = '/(x86*|i386|i686)/';
-    private const RegExPPC = '/(aarch*|arm*)/';
-    private const RegExARM = '/(ppc*)/';
+    private const RegExARM = '/(aarch*|arm*)/';
+    private const RegExPPC = '/(ppc*)/';
 
     /**
      * Returns the system's OS.
@@ -38,7 +38,7 @@ class System
      * 
      * @return string
      * 
-     * @throws Exeption
+     * @throws Exception
      */
     static public function getArchEnum(): string
     {
@@ -108,7 +108,7 @@ class System
      * 
      * @return bool
      * 
-     * @throws Exeption
+     * @throws Exception
      */
     static public function isArch(string $arch): bool
     {
