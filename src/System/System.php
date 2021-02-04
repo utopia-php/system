@@ -38,7 +38,7 @@ class System
      * 
      * @return string
      * 
-     * @throws Exeption
+     * @throws Exception
      */
     static public function getArchEnum(): string
     {
@@ -108,7 +108,7 @@ class System
      * 
      * @return bool
      * 
-     * @throws Exeption
+     * @throws Exception
      */
     static public function isArch(string $arch): bool
     {
