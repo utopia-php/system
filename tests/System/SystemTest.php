@@ -29,7 +29,7 @@ class SystemTest extends TestCase
     public function testOs()
     {
         $this->assertIsString(System::getOS());
-        $this->assertEquals("fail here",System::getArch());
+        $this->assertIsString(System::getArch());
         $this->assertIsString(System::getArchEnum());
         $this->assertIsString(System::getHostname());
         $this->assertIsBool(System::isArm());

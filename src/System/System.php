@@ -11,8 +11,8 @@ class System
     public const ARM = 'arm';
 
     private const RegExX86 = '/(x86*|i386|i686)/';
-    private const RegExPPC = '/(aarch*|arm*)/';
-    private const RegExARM = '/(ppc*)/';
+    private const RegExARM = '/(aarch*|arm*)/';
+    private const RegExPPC = '/(ppc*)/';
 
     /**
      * Returns the system's OS.
