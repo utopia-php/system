@@ -15,6 +15,33 @@ class System
     private const RegExPPC = '/(ppc*)/';
 
     /**
+     * A list of Linux Disks that are not considered valid
+     * These are usually virtual drives or other non-physical devices such as loopback or ram.
+     * 
+     * This list is ran through a contains, meaning for example if 'loop' was in the list,
+     * A 'loop0' interface would be considered invalid and not computed.
+     */
+    private const InvalidDisks = [
+        'loop',
+        'ram',
+    ];
+
+    /**
+     * A list of Linux Network Interfaces that are not considered valid
+     * These are usually virtual interfaces created by tools such as Docker or VirtualBox
+     * 
+     * This list is ran through a contains, meaning for example if 'vboxnet' was in the list,
+     * A 'vboxnet0' interface would be considered invalid and not computed.
+     */
+    private const InvalidNetInterfaces = [
+        'veth',
+        'docker',
+        'lo',
+        'tun',
+        'vboxnet'
+    ];
+
+    /**
      * Returns the system's OS.
      * @return string
      */
@@ -127,5 +154,352 @@ class System
                 throw new Exception("'{$arch}' not found.");
                 break;
         }
+    }
+
+    /**
+     * Gets the system's total amount of CPU cores.
+     * 
+     * @return int
+     * 
+     * @throws Exception
+     */
+    static public function getCPUCores(): int
+    {
+        switch (self::getOS()) {
+            case 'Linux':
+                $cpuinfo = file_get_contents('/proc/cpuinfo');
+                preg_match_all('/^processor/m', $cpuinfo, $matches);
+                return count($matches[0]);
+            case 'Darwin':
+                return shell_exec('sysctl -n hw.ncpu');
+            case 'Windows':
+                return shell_exec('wmic cpu get NumberOfCores');
+            default:
+                throw new Exception(self::getOS() . " not supported.");
+        }
+    }
+
+    /**
+     * Helper function to read a Linux System's /proc/stat data and convert it into an array.
+     * 
+     * @return array
+     */
+    static private function getProcStatData(): array
+    {
+        $data = [];
+
+        $totalCPUExists = false;
+
+        $cpustats = file_get_contents('/proc/stat');
+
+        $cpus = explode("\n", $cpustats);
+
+        // Remove non-CPU lines
+        $cpus = array_filter($cpus, function ($cpu) {
+            return preg_match('/^cpu[0-999]/', $cpu);
+        });
+
+        foreach ($cpus as $cpu) {
+            $cpu = explode(' ', $cpu);
+
+            // get CPU number
+            $cpuNumber = substr($cpu[0], 3);
+
+            if ($cpu[0] === 'cpu') {
+                $totalCPUExists = true;
+                $cpuNumber = 'total';
+            }
+
+            $data[$cpuNumber]['user'] = $cpu[1];
+            $data[$cpuNumber]['nice'] = $cpu[2];
+            $data[$cpuNumber]['system'] = $cpu[3];
+            $data[$cpuNumber]['idle'] = $cpu[4];
+            $data[$cpuNumber]['iowait'] = $cpu[5];
+            $data[$cpuNumber]['irq'] = $cpu[6];
+            $data[$cpuNumber]['softirq'] = $cpu[7];
+
+            // These might not exist on older kernels.
+            $data[$cpuNumber]['steal'] = isset($cpu[8]) ? $cpu[8] : 0;
+            $data[$cpuNumber]['guest'] = isset($cpu[9]) ? $cpu[9] : 0;
+        }
+
+        if (!$totalCPUExists) {
+            // Combine all values
+            $data['total'] = [
+                'user' => 0,
+                'nice' => 0,
+                'system' => 0,
+                'idle' => 0,
+                'iowait' => 0,
+                'irq' => 0,
+                'softirq' => 0,
+                'steal' => 0,
+                'guest' => 0
+            ];
+
+            foreach ($data as $cpu) {
+                $data['total']['user'] += $cpu['user'];
+                $data['total']['nice'] += $cpu['nice'];
+                $data['total']['system'] += $cpu['system'];
+                $data['total']['idle'] += $cpu['idle'];
+                $data['total']['iowait'] += $cpu['iowait'];
+                $data['total']['irq'] += $cpu['irq'];
+                $data['total']['softirq'] += $cpu['softirq'];
+                $data['total']['steal'] += $cpu['steal'];
+                $data['total']['guest'] += $cpu['guest'];
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Gets the current usage of a core as a percentage. Passing 0 will return the usage of all cores combined.
+     * 
+     * @param int $core
+     * 
+     * @return int
+     * 
+     * @throws Exception
+     */
+    static public function getCPUUtilisation(int $id = 0): int
+    {
+        switch (self::getOS()) {
+            case 'Linux':
+                $cpuNow = self::getProcStatData();
+                $i = 0;
+
+                $data = [];
+
+                foreach ($cpuNow as $cpu) {
+                    // Check if this is the total CPU
+                    $cpuTotal = $cpu['user'] + $cpu['nice'] + $cpu['system'] + $cpu['idle'] + $cpu['iowait'] + $cpu['irq'] + $cpu['softirq'] + $cpu['steal'];
+
+                    $cpuIdle = $cpu['idle'];
+
+                    $idleDelta = $cpuIdle - (isset($lastData[$i]) ? $lastData[$i]['idle'] : 0);
+
+                    $totalDelta = $cpuTotal - (isset($lastData[$i]) ? $lastData[$i]['total'] : 0);
+
+                    $lastData[$i]['total'] = $cpuTotal;
+                    $lastData[$i]['idle'] = $cpuIdle;
+
+                    $result = (1.0 - ($idleDelta / $totalDelta)) * 100;
+
+                    $data[$i] = $result;
+
+                    $i++;
+                }
+
+                if ($id === 0) {
+                    return array_sum($data);
+                } else {
+                    return $data[$id];
+                }
+        }
+    }
+
+    /**
+     * Returns the total amount of RAM available on the system as Megabytes.
+     * 
+     * @return int
+     * 
+     * @throws Exception
+     */
+    static public function getMemoryTotal(): int
+    {
+        switch (self::getOS()) {
+            case 'Linux':
+                $meminfo = file_get_contents('/proc/meminfo');
+                preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);
+                return intval(intval($matches[1]) / 1024);
+                break;
+            case 'Darwin':
+                return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
+        }
+    }
+
+    /**
+     * Returns the total amount of Free RAM available on the system as Megabytes.
+     * 
+     * @return int
+     * 
+     * @throws Exception
+     */
+    static public function getMemoryFree(): int
+    {
+        switch (self::getOS()) {
+            case 'Linux':
+                $meminfo = file_get_contents('/proc/meminfo');
+                preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
+                return ($matches[1] / 1024);
+            case 'Darwin':
+                return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
+        }
+    }
+
+    /**
+     * Returns the total amount of Disk space on the system as Megabytes.
+     * 
+     * @return int
+     * 
+     * @throws Exception
+     */
+    static public function getDiskTotal(): int
+    {
+        $totalSpace = disk_total_space(__DIR__);
+
+        if ($totalSpace === false) {
+            throw new Exception('Unable to get disk space');
+        }
+
+        return intval($totalSpace / 1024 / 1024);
+    }
+
+    /**
+     * Returns the total amount of Disk space free on the system as Megabytes.
+     * 
+     * @return int
+     * 
+     * @throws Exception
+     */
+    static public function getDiskFree(): int
+    {
+        $totalSpace = disk_free_space(__DIR__);
+
+        if ($totalSpace === false) {
+            throw new Exception('Unable to get free disk space');
+        }
+
+        return intval($totalSpace / 1024 / 1024);
+    }
+
+    /**
+     * Helper function to read a Linux System's /proc/diskstats data and convert it into an array.
+     * 
+     * @return array
+     */
+    static private function getDiskStats()
+    {
+        // Read /proc/diskstats
+        $diskstats = file_get_contents('/proc/diskstats');
+
+        // Split the data
+        $diskstats = explode("\n", $diskstats);
+
+        // Remove excess spaces
+        $diskstats = array_map(function ($data) {
+            return preg_replace('/\s+/', ' ', trim($data));
+        }, $diskstats);
+
+        // Remove empty lines
+        $diskstats = array_filter($diskstats, function ($data) {
+            return !empty($data);
+        });
+
+        $data = [];
+        foreach ($diskstats as $disk) {
+            // Breakdown the data
+            $disk = explode(' ', $disk);
+
+            $data[$disk[2]] = $disk;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Returns an array of all the available storage devices on the system containing
+     * the current read and write usage in Megabytes.
+     * There is also a ['total'] key that contains the total amount of read and write usage.
+     * 
+     * @return array
+     * 
+     * @throws Exception
+     */
+    static public function getIOUsage(): array
+    {
+        $diskStat = self::getDiskStats();
+        sleep(1);
+        $diskStat2 = self::getDiskStats();
+
+        // Remove invalid disks
+        $diskStat = array_filter($diskStat, function ($disk) {
+            foreach (self::InvalidDisks as $filter) {
+                if (str_contains($disk[2], $filter)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        $diskStat2 = array_filter($diskStat2, function ($disk) {
+            foreach (self::InvalidDisks as $filter) {
+                if (str_contains($disk[2], $filter)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        $stats = [];
+
+        // Compute Delta
+        foreach ($diskStat as $key => $disk) {
+            $stats[$key]['read'] = (((intval($diskStat2[$key][5]) - intval($disk[5])) * 512) / 1048576);
+            $stats[$key]['write'] = (((intval($diskStat2[$key][9]) - intval($disk[9])) * 512) / 1048576);
+        }
+
+        $stats['total']['read'] = array_sum(array_column($stats, 'read'));
+        $stats['total']['write'] = array_sum(array_column($stats, 'write'));
+
+        return $stats;
+    }
+
+    /**
+     * Returns an array of all the available network interfaces on the system containing
+     * the current download and upload usage in Megabytes.
+     * There is also a ['total'] key that contains the total amount of download and upload
+     * 
+     * @return array
+     * 
+     * @throws Exception
+     */
+    static public function getNetworkUsage(): array
+    {
+        // Create a list of interfaces
+        $interfaces = scandir('/sys/class/net', SCANDIR_SORT_NONE);
+
+        // Remove all unwanted interfaces
+        $interfaces = array_filter($interfaces, function ($interface) {
+            foreach (self::InvalidDisks as $filter) {
+                if (str_contains($interface, $filter)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        // Get the total IO Usage
+        $IOUsage = [];
+
+        foreach ($interfaces as $interface) {
+            $tx1 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
+            $rx1 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
+            sleep(1);
+            $tx2 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
+            $rx2 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
+
+            $IOUsage[$interface]['download'] = round(($rx2 - $rx1) / 1048576, 2);
+            $IOUsage[$interface]['upload'] = round(($tx2 - $tx1) / 1048576, 2);
+        }
+
+        $IOUsage['total']['download'] = array_sum(array_column($IOUsage, 'download'));
+        $IOUsage['total']['upload'] = array_sum(array_column($IOUsage, 'upload'));
+
+        return $IOUsage;
     }
 }
