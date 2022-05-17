@@ -171,9 +171,9 @@ class System
                 preg_match_all('/^processor/m', $cpuinfo, $matches);
                 return count($matches[0]);
             case 'Darwin':
-                return shell_exec('sysctl -n hw.ncpu');
+                return intval(shell_exec('sysctl -n hw.ncpu'));
             case 'Windows':
-                return shell_exec('wmic cpu get NumberOfCores');
+                return intval(shell_exec('wmic cpu get NumberOfCores'));
             default:
                 throw new Exception(self::getOS() . " not supported.");
         }
@@ -389,7 +389,7 @@ class System
 
         // Remove excess spaces
         $diskstats = array_map(function ($data) {
-            return preg_replace('/\s+/', ' ', trim($data));
+            return preg_replace('/\t+/', ' ', trim($data));
         }, $diskstats);
 
         // Remove empty lines
