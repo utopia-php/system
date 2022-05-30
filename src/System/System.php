@@ -39,7 +39,8 @@ class System
         'lo',
         'tun',
         'vboxnet',
-        '.'
+        '.',
+        'bonding_masters'
     ];
 
     /**
