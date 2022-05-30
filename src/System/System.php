@@ -38,7 +38,8 @@ class System
         'docker',
         'lo',
         'tun',
-        'vboxnet'
+        'vboxnet',
+        '.'
     ];
 
     /**
@@ -292,10 +293,12 @@ class System
                 }
 
                 if ($id === 0) {
-                    return array_sum($data);
+                    return intval(array_sum($data));
                 } else {
                     return $data[$id];
                 }
+            default:
+                throw new Exception(self::getOS() . " not supported.");
         }
     }
 
@@ -316,7 +319,10 @@ class System
                 break;
             case 'Darwin':
                 return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
-        }
+                break;
+            default:
+                throw new Exception(self::getOS() . " not supported.");
+            }
     }
 
     /**
@@ -332,9 +338,11 @@ class System
             case 'Linux':
                 $meminfo = file_get_contents('/proc/meminfo');
                 preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
-                return ($matches[1] / 1024);
+                return intval($matches[1] / 1024);
             case 'Darwin':
                 return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
+            default:
+                throw new Exception(self::getOS() . " not supported.");
         }
     }
 
@@ -474,7 +482,7 @@ class System
 
         // Remove all unwanted interfaces
         $interfaces = array_filter($interfaces, function ($interface) {
-            foreach (self::InvalidDisks as $filter) {
+            foreach (self::InvalidNetInterfaces as $filter) {
                 if (str_contains($interface, $filter)) {
                     return false;
                 }
