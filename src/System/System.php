@@ -422,14 +422,15 @@ class System
      * the current read and write usage in Megabytes.
      * There is also a ['total'] key that contains the total amount of read and write usage.
      * 
+     * @param int $duration
      * @return array
      * 
      * @throws Exception
      */
-    static public function getIOUsage(): array
+    static public function getIOUsage($duration = 1): array
     {
         $diskStat = self::getDiskStats();
-        sleep(1);
+        sleep($duration);
         $diskStat2 = self::getDiskStats();
 
         // Remove invalid disks
@@ -472,11 +473,12 @@ class System
      * the current download and upload usage in Megabytes.
      * There is also a ['total'] key that contains the total amount of download and upload
      * 
+     * @param int $duration
      * @return array
      * 
      * @throws Exception
      */
-    static public function getNetworkUsage(): array
+    static public function getNetworkUsage($duration = 1): array
     {
         // Create a list of interfaces
         $interfaces = scandir('/sys/class/net', SCANDIR_SORT_NONE);
@@ -498,7 +500,7 @@ class System
         foreach ($interfaces as $interface) {
             $tx1 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
             $rx1 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
-            sleep(1);
+            sleep($duration);
             $tx2 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
             $rx2 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
 
