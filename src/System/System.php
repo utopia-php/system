@@ -20,6 +20,10 @@ class System
      * 
      * This list is ran through a contains, meaning for example if 'loop' was in the list,
      * A 'loop0' interface would be considered invalid and not computed.
+     * 
+     * Documentation:
+     * Loop - https://man7.org/linux/man-pages/man4/loop.4.html
+     * Ram - https://man7.org/linux/man-pages/man4/ram.4.html
      */
     private const InvalidDisks = [
         'loop',
@@ -32,6 +36,14 @@ class System
      * 
      * This list is ran through a contains, meaning for example if 'vboxnet' was in the list,
      * A 'vboxnet0' interface would be considered invalid and not computed.
+     * 
+     * Documentation:
+     * veth - https://man7.org/linux/man-pages/man4/veth.4.html
+     * docker - https://docs.docker.com/network/
+     * lo - Localhost Loopback device, https://man7.org/linux/man-pages/man4/loop.4.html
+     * tun - Linux Layer 3 Interface, https://www.kernel.org/doc/html/v5.8/networking/tuntap.html
+     * vboxnet - Virtual Machine Networking Interface, https://www.virtualbox.org/manual/ch06.html
+     * bonding_masters - https://www.kernel.org/doc/Documentation/networking/bonding.txt
      */
     private const InvalidNetInterfaces = [
         'veth',
@@ -221,8 +233,8 @@ class System
             $data[$cpuNumber]['softirq'] = $cpu[7];
 
             // These might not exist on older kernels.
-            $data[$cpuNumber]['steal'] = isset($cpu[8]) ? $cpu[8] : 0;
-            $data[$cpuNumber]['guest'] = isset($cpu[9]) ? $cpu[9] : 0;
+            $data[$cpuNumber]['steal'] = $cpu[8] ?? 0;
+            $data[$cpuNumber]['guest'] = $cpu[9] ?? 0;
         }
 
         if (!$totalCPUExists) {
@@ -316,7 +328,12 @@ class System
             case 'Linux':
                 $meminfo = file_get_contents('/proc/meminfo');
                 preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);
-                return intval(intval($matches[1]) / 1024);
+
+                if (isset($matches[1])) {
+                    return intval(intval($matches[1]) / 1024);
+                } else {
+                    throw new Exception('Could not find MemTotal in /proc/meminfo.');
+                }
                 break;
             case 'Darwin':
                 return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
@@ -339,7 +356,11 @@ class System
             case 'Linux':
                 $meminfo = file_get_contents('/proc/meminfo');
                 preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
-                return intval($matches[1] / 1024);
+                if (isset($matches[1])) {
+                    return intval(intval($matches[1]) / 1024);
+                } else {
+                    throw new Exception('Could not find MemFree in /proc/meminfo.');
+                }
             case 'Darwin':
                 return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
             default:
@@ -436,6 +457,9 @@ class System
         // Remove invalid disks
         $diskStat = array_filter($diskStat, function ($disk) {
             foreach (self::InvalidDisks as $filter) {
+                if (!$disk[2]) {
+                    return false;
+                }
                 if (str_contains($disk[2], $filter)) {
                     return false;
                 }
@@ -446,6 +470,10 @@ class System
 
         $diskStat2 = array_filter($diskStat2, function ($disk) {
             foreach (self::InvalidDisks as $filter) {
+                if (!$disk[2]) {
+                    return false;
+                }
+
                 if (str_contains($disk[2], $filter)) {
                     return false;
                 }
