@@ -224,13 +224,13 @@ class System
                 $cpuNumber = 'total';
             }
 
-            $data[$cpuNumber]['user'] = $cpu[1];
-            $data[$cpuNumber]['nice'] = $cpu[2];
-            $data[$cpuNumber]['system'] = $cpu[3];
-            $data[$cpuNumber]['idle'] = $cpu[4];
-            $data[$cpuNumber]['iowait'] = $cpu[5];
-            $data[$cpuNumber]['irq'] = $cpu[6];
-            $data[$cpuNumber]['softirq'] = $cpu[7];
+            $data[$cpuNumber]['user'] = $cpu[1] ?? 0;
+            $data[$cpuNumber]['nice'] = $cpu[2] ?? 0;
+            $data[$cpuNumber]['system'] = $cpu[3] ?? 0;
+            $data[$cpuNumber]['idle'] = $cpu[4] ?? 0;
+            $data[$cpuNumber]['iowait'] = $cpu[5] ?? 0;
+            $data[$cpuNumber]['irq'] = $cpu[6] ?? 0;
+            $data[$cpuNumber]['softirq'] = $cpu[7] ?? 0;
 
             // These might not exist on older kernels.
             $data[$cpuNumber]['steal'] = $cpu[8] ?? 0;
@@ -252,15 +252,15 @@ class System
             ];
 
             foreach ($data as $cpu) {
-                $data['total']['user'] += $cpu['user'];
-                $data['total']['nice'] += $cpu['nice'];
-                $data['total']['system'] += $cpu['system'];
-                $data['total']['idle'] += $cpu['idle'];
-                $data['total']['iowait'] += $cpu['iowait'];
-                $data['total']['irq'] += $cpu['irq'];
-                $data['total']['softirq'] += $cpu['softirq'];
-                $data['total']['steal'] += $cpu['steal'];
-                $data['total']['guest'] += $cpu['guest'];
+                $data['total']['user'] += intval($cpu['user']);
+                $data['total']['nice'] += intval($cpu['nice'] ?? 0);
+                $data['total']['system'] += intval($cpu['system'] ?? 0);
+                $data['total']['idle'] += intval($cpu['idle'] ?? 0);
+                $data['total']['iowait'] += intval($cpu['iowait'] ?? 0);
+                $data['total']['irq'] += intval($cpu['irq'] ?? 0);
+                $data['total']['softirq'] += intval($cpu['softirq'] ?? 0);
+                $data['total']['steal'] += intval($cpu['steal'] ?? 0);
+                $data['total']['guest'] += intval($cpu['guest'] ?? 0);
             }
         }
 
@@ -325,22 +325,22 @@ class System
     static public function getMemoryTotal(): int
     {
         switch (self::getOS()) {
-            case 'Linux':
-                $meminfo = file_get_contents('/proc/meminfo');
-                preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);
+        case 'Linux':
+            $meminfo = file_get_contents('/proc/meminfo');
+            preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);
 
-                if (isset($matches[1])) {
-                    return intval(intval($matches[1]) / 1024);
-                } else {
-                    throw new Exception('Could not find MemTotal in /proc/meminfo.');
-                }
-                break;
-            case 'Darwin':
-                return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
-                break;
-            default:
-                throw new Exception(self::getOS() . " not supported.");
+            if (isset($matches[1])) {
+                return intval(intval($matches[1]) / 1024);
+            } else {
+                throw new Exception('Could not find MemTotal in /proc/meminfo.');
             }
+            break;
+        case 'Darwin':
+            return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
+            break;
+        default:
+            throw new Exception(self::getOS() . " not supported.");
+        }
     }
 
     /**
@@ -457,7 +457,7 @@ class System
         // Remove invalid disks
         $diskStat = array_filter($diskStat, function ($disk) {
             foreach (self::InvalidDisks as $filter) {
-                if (!$disk[2]) {
+                if (!isset($disk[2])) {
                     return false;
                 }
                 if (str_contains($disk[2], $filter)) {
@@ -470,7 +470,7 @@ class System
 
         $diskStat2 = array_filter($diskStat2, function ($disk) {
             foreach (self::InvalidDisks as $filter) {
-                if (!$disk[2]) {
+                if (!isset($disk[2])) {
                     return false;
                 }
 
