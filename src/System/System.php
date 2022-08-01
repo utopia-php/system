@@ -25,7 +25,7 @@ class System
      * Loop - https://man7.org/linux/man-pages/man4/loop.4.html
      * Ram - https://man7.org/linux/man-pages/man4/ram.4.html
      */
-    private const InvalidDisks = [
+    private const INVALIDDISKS = [
         'loop',
         'ram',
     ];
@@ -45,7 +45,7 @@ class System
      * vboxnet - Virtual Machine Networking Interface, https://www.virtualbox.org/manual/ch06.html
      * bonding_masters - https://www.kernel.org/doc/Documentation/networking/bonding.txt
      */
-    private const InvalidNetInterfaces = [
+    private const INVALIDNETINTERFACES = [
         'veth',
         'docker',
         'lo',
@@ -57,6 +57,7 @@ class System
 
     /**
      * Returns the system's OS.
+     * 
      * @return string
      */
     static public function getOS(): string
@@ -85,19 +86,19 @@ class System
     {
         $arch = self::getArch();
         switch (1) {
-            case preg_match(self::RegExX86, $arch):
-                return System::X86;
-                break;
-            case preg_match(self::RegExPPC, $arch):
-                return System::PPC;
-                break;
-            case preg_match(self::RegExARM, $arch):
-                return System::ARM;
-                break;
+        case preg_match(self::RegExX86, $arch):
+            return System::X86;
+            break;
+        case preg_match(self::RegExPPC, $arch):
+            return System::PPC;
+            break;
+        case preg_match(self::RegExARM, $arch):
+            return System::ARM;
+            break;
 
-            default:
-                throw new Exception("'{$arch}' enum not found.");
-                break;
+        default:
+            throw new Exception("'{$arch}' enum not found.");
+            break;
         }
     }
 
@@ -154,19 +155,19 @@ class System
     static public function isArch(string $arch): bool
     {
         switch ($arch) {
-            case self::X86:
-                return self::isX86();
-                break;
-            case self::PPC:
-                return self::isPPC();
-                break;
-            case self::ARM:
-                return self::isArm();
-                break;
+        case self::X86:
+            return self::isX86();
+            break;
+        case self::PPC:
+            return self::isPPC();
+            break;
+        case self::ARM:
+            return self::isArm();
+            break;
 
-            default:
-                throw new Exception("'{$arch}' not found.");
-                break;
+        default:
+            throw new Exception("'{$arch}' not found.");
+            break;
         }
     }
 
@@ -353,18 +354,18 @@ class System
     static public function getMemoryFree(): int
     {
         switch (self::getOS()) {
-            case 'Linux':
-                $meminfo = file_get_contents('/proc/meminfo');
-                preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
-                if (isset($matches[1])) {
-                    return intval(intval($matches[1]) / 1024);
-                } else {
-                    throw new Exception('Could not find MemFree in /proc/meminfo.');
-                }
-            case 'Darwin':
-                return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
-            default:
-                throw new Exception(self::getOS() . " not supported.");
+        case 'Linux':
+            $meminfo = file_get_contents('/proc/meminfo');
+            preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
+            if (isset($matches[1])) {
+                return intval(intval($matches[1]) / 1024);
+            } else {
+                throw new Exception('Could not find MemFree in /proc/meminfo.');
+            }
+        case 'Darwin':
+            return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
+        default:
+            throw new Exception(self::getOS() . " not supported.");
         }
     }
 
@@ -456,7 +457,7 @@ class System
 
         // Remove invalid disks
         $diskStat = array_filter($diskStat, function ($disk) {
-            foreach (self::InvalidDisks as $filter) {
+            foreach (self::INVALIDDISKS as $filter) {
                 if (!isset($disk[2])) {
                     return false;
                 }
@@ -469,7 +470,7 @@ class System
         });
 
         $diskStat2 = array_filter($diskStat2, function ($disk) {
-            foreach (self::InvalidDisks as $filter) {
+            foreach (self::INVALIDDISKS as $filter) {
                 if (!isset($disk[2])) {
                     return false;
                 }
@@ -497,11 +498,13 @@ class System
     }
 
     /**
-     * Returns an array of all the available network interfaces on the system containing
-     * the current download and upload usage in Megabytes.
-     * There is also a ['total'] key that contains the total amount of download and upload
+     * Returns an array of all the available network interfaces on the system 
+     * containing the current download and upload usage in Megabytes.
+     * There is also a ['total'] key that contains the total amount of download
+     * and upload
      * 
-     * @param int $duration
+     * @param int $duration The buffer duration to fetch the data points
+     * 
      * @return array
      * 
      * @throws Exception
@@ -513,7 +516,7 @@ class System
 
         // Remove all unwanted interfaces
         $interfaces = array_filter($interfaces, function ($interface) {
-            foreach (self::InvalidNetInterfaces as $filter) {
+            foreach (self::INVALIDNETINTERFACES as $filter) {
                 if (str_contains($interface, $filter)) {
                     return false;
                 }
