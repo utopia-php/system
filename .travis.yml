@@ -1,6 +1,6 @@
 language: php
 
-dist: focal
+dist: xenial
 
 arch:
 - amd64
