@@ -9,6 +9,10 @@ arch:
 php:
 - 7.4
 - 8.0
+- 8.0.23
+
+before_install:
+  - git clone https://github.com/P-H-C/phc-winner-argon2.git libargon2 && cd libargon2 && make test && sudo make install PREFIX=/usr && cd ..
 
 notifications:
   email:
