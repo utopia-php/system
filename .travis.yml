@@ -8,14 +8,14 @@ arch:
 
 php:
 - 7.4
-- 8.0
+- 8.0.23
 - nightly
 
 notifications:
   email:
   - team@appwrite.io
 
-before_script: apt-get install libargon2-0 && composer install --ignore-platform-reqs
+before_script: sudo apt-get install libargon2-0 && composer install --ignore-platform-reqs
 
 script:
 - vendor/bin/phpunit --configuration phpunit.xml --testsuite General
