@@ -1,6 +1,6 @@
 language: php
 
-dist: bionic
+dist: xenial
 
 arch:
 - amd64
@@ -8,7 +8,7 @@ arch:
 
 php:
 - 7.4
-- 8.0.23
+- 8.0
 
 notifications:
   email:
