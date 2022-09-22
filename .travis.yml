@@ -1,6 +1,6 @@
 language: php
 
-dist: xenial
+dist: bionic
 
 arch:
 - amd64
@@ -9,7 +9,6 @@ arch:
 php:
 - 7.4
 - 8.0.23
-- nightly
 
 notifications:
   email:
