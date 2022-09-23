@@ -1,14 +1,18 @@
 language: php
 
+dist: xenial
+
 arch:
 - amd64
-- ppc64le
 - arm64
 
 php:
 - 7.4
 - 8.0
-- nightly
+- 8.0.23
+
+before_install:
+  - git clone https://github.com/P-H-C/phc-winner-argon2.git libargon2 && cd libargon2 && make test && sudo make install PREFIX=/usr && cd ..
 
 notifications:
   email:
@@ -20,5 +24,4 @@ script:
 - vendor/bin/phpunit --configuration phpunit.xml --testsuite General
 - vendor/bin/psalm --show-info=true
 - if [ "$TRAVIS_CPU_ARCH" = "amd64" ]; then vendor/bin/phpunit --configuration phpunit.xml --testsuite X86; fi
-- if [ "$TRAVIS_CPU_ARCH" = "ppc64le" ]; then vendor/bin/phpunit --configuration phpunit.xml --testsuite PPC; fi
 - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then vendor/bin/phpunit --configuration phpunit.xml --testsuite ARM; fi
