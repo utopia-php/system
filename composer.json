@@ -18,8 +18,13 @@
     "autoload": {
         "psr-4": {"Utopia\\System\\": "src/System"}
     },
+    "scripts": {
+      "lint": "./vendor/bin/pint --test",
+      "format": "./vendor/bin/pint"
+    },
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "laravel/pint": "^1.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.3",
