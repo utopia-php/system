@@ -2,19 +2,20 @@
 /**
  * Utopia PHP Framework
  *
- * @package System
- * @subpackage Tests
  *
  * @link https://github.com/utopia-php/framework
+ *
  * @author Eldad Fux <eldad@appwrite.io>
+ *
  * @version 1.0 RC4
+ *
  * @license The MIT License (MIT) <http://www.opensource.org/licenses/mit-license.php>
  */
 
 namespace Utopia\Tests;
 
-use Utopia\System\System;
 use PHPUnit\Framework\TestCase;
+use Utopia\System\System;
 
 class SystemTest extends TestCase
 {
@@ -38,8 +39,8 @@ class SystemTest extends TestCase
         $this->assertIsBool(System::isArch(System::ARM));
         $this->assertIsBool(System::isArch(System::X86));
         $this->assertIsBool(System::isArch(System::PPC));
-        $this->expectException("Exception");
-        System::isArch("throw");
+        $this->expectException('Exception');
+        System::isArch('throw');
     }
 
     public function testGetCPUCores()
@@ -56,14 +57,14 @@ class SystemTest extends TestCase
     {
         $this->assertIsInt(System::getDiskFree());
     }
-    
+
     // Methods only implemented for Linux
     public function testGetCPUUtilisation()
     {
         if (System::getOS() === 'Linux') {
             $this->assertIsInt(System::getCPUUtilisation());
         } else {
-            $this->expectException("Exception");
+            $this->expectException('Exception');
             System::getCPUUtilisation();
         }
     }
@@ -73,7 +74,7 @@ class SystemTest extends TestCase
         if (System::getOS() === 'Linux') {
             $this->assertIsInt(System::getMemoryTotal());
         } else {
-            $this->expectException("Exception");
+            $this->expectException('Exception');
             System::getMemoryTotal();
         }
     }
@@ -83,7 +84,7 @@ class SystemTest extends TestCase
         if (System::getOS() === 'Linux') {
             $this->assertIsInt(System::getMemoryFree());
         } else {
-            $this->expectException("Exception");
+            $this->expectException('Exception');
             System::getMemoryFree();
         }
     }
@@ -93,16 +94,17 @@ class SystemTest extends TestCase
         if (System::getOS() === 'Linux') {
             $this->assertIsArray(System::getIOUsage());
         } else {
-            $this->expectException("Exception");
+            $this->expectException('Exception');
             System::getIOUsage();
         }
     }
 
-    public function testGetNetworkUsage() {
+    public function testGetNetworkUsage()
+    {
         if (System::getOS() === 'Linux') {
             $this->assertIsArray(System::getNetworkUsage());
         } else {
-            $this->expectException("Exception");
+            $this->expectException('Exception');
             System::getNetworkUsage();
         }
     }
