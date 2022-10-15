@@ -26,7 +26,7 @@ class SystemTest extends TestCase
     {
     }
 
-    public function testOs()
+    public function testOs():void
     {
         $this->assertIsString(System::getOS());
         $this->assertIsString(System::getArch());
@@ -42,23 +42,23 @@ class SystemTest extends TestCase
         System::isArch("throw");
     }
 
-    public function testGetCPUCores()
+    public function testGetCPUCores():void
     {
         $this->assertIsInt(System::getCPUCores());
     }
 
-    public function testGetDiskTotal()
+    public function testGetDiskTotal():void
     {
         $this->assertIsInt(System::getDiskTotal());
     }
 
-    public function testGetDiskFree()
+    public function testGetDiskFree():void
     {
         $this->assertIsInt(System::getDiskFree());
     }
     
     // Methods only implemented for Linux
-    public function testGetCPUUtilisation()
+    public function testGetCPUUtilisation():void
     {
         if (System::getOS() === 'Linux') {
             $this->assertIsInt(System::getCPUUtilisation());
@@ -68,7 +68,7 @@ class SystemTest extends TestCase
         }
     }
 
-    public function testGetMemoryTotal()
+    public function testGetMemoryTotal():void
     {
         if (System::getOS() === 'Linux') {
             $this->assertIsInt(System::getMemoryTotal());
@@ -78,7 +78,7 @@ class SystemTest extends TestCase
         }
     }
 
-    public function testGetMemoryFree()
+    public function testGetMemoryFree():void
     {
         if (System::getOS() === 'Linux') {
             $this->assertIsInt(System::getMemoryFree());
@@ -88,7 +88,7 @@ class SystemTest extends TestCase
         }
     }
 
-    public function testGetIOUsage()
+    public function testGetIOUsage():void
     {
         if (System::getOS() === 'Linux') {
             $this->assertIsArray(System::getIOUsage());
@@ -98,7 +98,7 @@ class SystemTest extends TestCase
         }
     }
 
-    public function testGetNetworkUsage() {
+    public function testGetNetworkUsage():void {
         if (System::getOS() === 'Linux') {
             $this->assertIsArray(System::getNetworkUsage());
         } else {
