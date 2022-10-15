@@ -27,7 +27,7 @@ class SystemTestARM extends TestCase
     {
     }
 
-    public function testOs()
+    public function testOs():void
     {
         $this->assertTrue(System::isArm());
         $this->assertFalse(System::isPPC());
