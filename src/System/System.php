@@ -182,8 +182,9 @@ class System
         switch (self::getOS()) {
             case 'Linux':
                 $cpuinfo = file_get_contents('/proc/cpuinfo');
-                preg_match_all('/^processor/m', $cpuinfo, $matches);
-                return count($matches[0]);
+                if(is_string($cpuinfo)==1)
+                {preg_match_all('/^processor/m', $cpuinfo, $matches);
+                return count($matches[0]);}
             case 'Darwin':
                 return intval(shell_exec('sysctl -n hw.ncpu'));
             case 'Windows':
@@ -201,12 +202,13 @@ class System
     private static function getProcStatData(): array
     {
         $data = [];
+        $cpus=[];
 
         $totalCPUExists = false;
 
         $cpustats = file_get_contents('/proc/stat');
-
-        $cpus = explode("\n",$cpustats);
+        if(is_string($cpustats)==1){
+        $cpus = explode("\n",$cpustats);}
 
         // Remove non-CPU lines
         $cpus = array_filter($cpus, function ($cpu) {
@@ -328,7 +330,8 @@ class System
         case 'Linux':
             
             $meminfo = file_get_contents('/proc/meminfo');
-            preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);
+            if(is_string($meminfo)==1){
+            preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);}
 
             if (isset($matches[1])) {
                 return intval(intval($matches[1]) / 1024);
@@ -356,7 +359,8 @@ class System
         switch (self::getOS()) {
         case 'Linux':
             $meminfo = file_get_contents('/proc/meminfo');
-            preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
+            if(is_string($meminfo)==1){
+            preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);}
             if (isset($matches[1])) {
                 return intval(intval($matches[1]) / 1024);
             } else {
@@ -408,7 +412,7 @@ class System
     /**
      * Helper function to read a Linux System's /proc/diskstats data and convert it into an array.
      * 
-     * @return array
+     * @return array<string>
      */
     private static function getDiskStats()
     {
@@ -416,12 +420,14 @@ class System
         $diskstats = file_get_contents('/proc/diskstats');
 
         // Split the data
-        $diskstats = explode("\n", $diskstats);
+        if(is_string($diskstats)==1){
+        $diskstats = explode("\n", $diskstats);}
 
         // Remove excess spaces
+        if(is_array($diskstats)==1){
         $diskstats = array_map(function ($data) {
             return preg_replace('/\t+/', ' ', trim($data));
-        }, $diskstats);
+        }, $diskstats);}
 
         // Remove empty lines
         $diskstats = array_filter($diskstats, function ($data) {
@@ -515,6 +521,7 @@ class System
         $interfaces = scandir('/sys/class/net', SCANDIR_SORT_NONE);
 
         // Remove all unwanted interfaces
+        
         $interfaces = array_filter($interfaces, function ($interface) {
             foreach (self::INVALIDNETINTERFACES as $filter) {
                 if (str_contains($interface, $filter)) {
