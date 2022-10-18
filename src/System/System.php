@@ -322,7 +322,7 @@ class System
     /**
      * Get percentage CPU usage (between 0 and 100)
      *
-     * @param  int $duration
+     * @param  int  $duration
      * @return float
      *
      * @throws Exception
