@@ -320,6 +320,42 @@ class System
     }
 
     /**
+     * Get percentage CPU usage (between 0 and 100)
+     *
+     * @param  int $duration
+     * @return float
+     *
+     * @throws Exception
+     */
+    public static function getCPUUsage(int $duration = 1): float
+    {
+        switch (self::getOS()) {
+            case 'Linux':
+                $startCpu = self::getProcStatData()['total'];
+                \sleep($duration);
+                $endCpu = self::getProcStatData()['total'];
+
+                $prevIdle = $startCpu['idle'] + $startCpu['iowait'];
+                $idle = $endCpu['idle'] + $endCpu['iowait'];
+
+                $prevNonIdle = $startCpu['user'] + $startCpu['nice'] + $startCpu['system'] + $startCpu['irq'] + $startCpu['softirq'] + $startCpu['steal'];
+                $nonIdle = $endCpu['user'] + $endCpu['nice'] + $endCpu['system'] + $endCpu['irq'] + $endCpu['softirq'] + $endCpu['steal'];
+
+                $prevTotal = $prevIdle + $prevNonIdle;
+                $total = $idle + $nonIdle;
+
+                $totalDiff = $total - $prevTotal;
+                $idleDiff = $idle - $prevIdle;
+
+                $percentage = ($totalDiff - $idleDiff) / $totalDiff;
+
+                return $percentage * 100;
+            default:
+                throw new Exception(self::getOS().' not supported.');
+        }
+    }
+
+    /**
      * Returns the total amount of RAM available on the system as Megabytes.
      *
      * @return int

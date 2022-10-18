@@ -69,6 +69,17 @@ class SystemTest extends TestCase
         }
     }
 
+    // Methods only implemented for Linux
+    public function testGetCPUUsage()
+    {
+        if (System::getOS() === 'Linux') {
+            $this->assertIsNumeric(System::getCPUUsage(5));
+        } else {
+            $this->expectException('Exception');
+            System::getCPUUtilisation();
+        }
+    }
+
     public function testGetMemoryTotal()
     {
         if (System::getOS() === 'Linux') {
