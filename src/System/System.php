@@ -321,6 +321,7 @@ class System
 
     /**
      * Get percentage CPU usage (between 0 and 100)
+     * Refference for formula: https://stackoverflow.com/a/23376195/17300412
      *
      * @param  int  $duration
      * @return float
