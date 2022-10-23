@@ -1,5 +1,4 @@
 <?php
-
 namespace Utopia\System;
 
 use Exception;
@@ -7,24 +6,20 @@ use Exception;
 class System
 {
     public const X86 = 'x86';
-
     public const PPC = 'ppc';
-
     public const ARM = 'arm';
 
     private const RegExX86 = '/(x86*|i386|i686)/';
-
     private const RegExARM = '/(aarch*|arm*)/';
-
     private const RegExPPC = '/(ppc*)/';
 
     /**
      * A list of Linux Disks that are not considered valid
      * These are usually virtual drives or other non-physical devices such as loopback or ram.
-     *
+     * 
      * This list is ran through a contains, meaning for example if 'loop' was in the list,
      * A 'loop0' interface would be considered invalid and not computed.
-     *
+     * 
      * Documentation:
      * Loop - https://man7.org/linux/man-pages/man4/loop.4.html
      * Ram - https://man7.org/linux/man-pages/man4/ram.4.html
@@ -37,10 +32,10 @@ class System
     /**
      * A list of Linux Network Interfaces that are not considered valid
      * These are usually virtual interfaces created by tools such as Docker or VirtualBox
-     *
+     * 
      * This list is ran through a contains, meaning for example if 'vboxnet' was in the list,
      * A 'vboxnet0' interface would be considered invalid and not computed.
-     *
+     * 
      * Documentation:
      * veth - https://man7.org/linux/man-pages/man4/veth.4.html
      * docker - https://docs.docker.com/network/
@@ -56,22 +51,22 @@ class System
         'tun',
         'vboxnet',
         '.',
-        'bonding_masters',
+        'bonding_masters'
     ];
 
     /**
      * Returns the system's OS.
-     *
+     * 
      * @return string
      */
-    public static function getOS(): string
+ public static function getOS(): string
     {
         return php_uname('s');
     }
 
     /**
      * Returns the architecture of the system's processor.
-     *
+     * 
      * @return string
      */
     public static function getArch(): string
@@ -81,34 +76,30 @@ class System
 
     /**
      * Returns the architecture's Enum of the system's processor.
-     *
+     * 
      * @return string
-     *
+     * 
      * @throws Exception
      */
     public static function getArchEnum(): string
     {
         $arch = self::getArch();
         switch (1) {
-            case preg_match(self::RegExX86, $arch):
-                return System::X86;
-                break;
-            case preg_match(self::RegExPPC, $arch):
-                return System::PPC;
-                break;
-            case preg_match(self::RegExARM, $arch):
-                return System::ARM;
-                break;
+        case preg_match(self::RegExX86, $arch):
+            return System::X86;
+        case preg_match(self::RegExPPC, $arch):
+            return System::PPC;
+        case preg_match(self::RegExARM, $arch):
+            return System::ARM;
 
-            default:
-                throw new Exception("'{$arch}' enum not found.");
-                break;
+        default:
+            throw new Exception("'{$arch}' enum not found.");
         }
     }
 
     /**
      * Returns the system's hostname.
-     *
+     * 
      * @return string
      */
     public static function getHostname(): string
@@ -118,100 +109,98 @@ class System
 
     /**
      * Checks if the system is running on an ARM architecture.
-     *
+     * 
      * @return bool
      */
     public static function isArm(): bool
     {
-        return (bool) preg_match(self::RegExARM, self::getArch());
+        return !!preg_match(self::RegExARM, self::getArch());
     }
 
     /**
      * Checks if the system is running on an X86 architecture.
-     *
+     * 
      * @return bool
      */
     public static function isX86(): bool
     {
-        return (bool) preg_match(self::RegExX86, self::getArch());
+        return !!preg_match(self::RegExX86, self::getArch());
     }
 
     /**
      * Checks if the system is running on an PowerPC architecture.
-     *
+     * 
      * @return bool
      */
     public static function isPPC(): bool
     {
-        return (bool) preg_match(self::RegExPPC, self::getArch());
+        return !!preg_match(self::RegExPPC, self::getArch());
     }
 
     /**
-     * Checks if the system is the passed architecture.
+     * Checks if the system is the passed architecture. 
      * You should pass `System::X86`, `System::PPC`, `System::ARM` or an equivalent string.
-     *
-     * @param  string  $arch
+     * 
+     * @param string $arch
+     * 
      * @return bool
-     *
+     * 
      * @throws Exception
      */
     public static function isArch(string $arch): bool
     {
         switch ($arch) {
-            case self::X86:
-                return self::isX86();
-                break;
-            case self::PPC:
-                return self::isPPC();
-                break;
-            case self::ARM:
-                return self::isArm();
-                break;
+        case self::X86:
+            return self::isX86();
+        case self::PPC:
+            return self::isPPC();
+        case self::ARM:
+            return self::isArm();
 
-            default:
-                throw new Exception("'{$arch}' not found.");
-                break;
+        default:
+            throw new Exception("'{$arch}' not found.");
         }
     }
 
     /**
      * Gets the system's total amount of CPU cores.
-     *
-     * @return int
-     *
+     * 
+     * @return string|int
+     * 
      * @throws Exception
      */
-    public static function getCPUCores(): int
+    public static function getCPUCores(): string|int
     {
         switch (self::getOS()) {
             case 'Linux':
                 $cpuinfo = file_get_contents('/proc/cpuinfo');
-                preg_match_all('/^processor/m', $cpuinfo, $matches);
-
-                return count($matches[0]);
+                if(is_string($cpuinfo)==1)
+                {preg_match_all('/^processor/m', $cpuinfo, $matches);
+                return count($matches[0]);}
             case 'Darwin':
                 return intval(shell_exec('sysctl -n hw.ncpu'));
             case 'Windows':
                 return intval(shell_exec('wmic cpu get NumberOfCores'));
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . " not supported.");
         }
     }
 
     /**
      * Helper function to read a Linux System's /proc/stat data and convert it into an array.
-     *
-     * @return array
+     * 
+     * @return array<mixed>
      */
     private static function getProcStatData(): array
     {
         $data = [];
+        $cpus=[];
 
         $totalCPUExists = false;
 
         $cpustats = file_get_contents('/proc/stat');
-
-        $cpus = explode("\n", $cpustats);
+        if(is_string($cpustats)==1){
+        $cpus = explode("\n",$cpustats);}
 
         // Remove non-CPU lines
         $cpus = array_filter($cpus, function ($cpu) {
@@ -242,7 +231,7 @@ class System
             $data[$cpuNumber]['guest'] = $cpu[9] ?? 0;
         }
 
-        if (! $totalCPUExists) {
+        if (!$totalCPUExists) {
             // Combine all values
             $data['total'] = [
                 'user' => 0,
@@ -253,19 +242,19 @@ class System
                 'irq' => 0,
                 'softirq' => 0,
                 'steal' => 0,
-                'guest' => 0,
+                'guest' => 0
             ];
 
             foreach ($data as $cpu) {
                 $data['total']['user'] += intval($cpu['user']);
-                $data['total']['nice'] += intval($cpu['nice'] ?? 0);
-                $data['total']['system'] += intval($cpu['system'] ?? 0);
-                $data['total']['idle'] += intval($cpu['idle'] ?? 0);
-                $data['total']['iowait'] += intval($cpu['iowait'] ?? 0);
-                $data['total']['irq'] += intval($cpu['irq'] ?? 0);
-                $data['total']['softirq'] += intval($cpu['softirq'] ?? 0);
-                $data['total']['steal'] += intval($cpu['steal'] ?? 0);
-                $data['total']['guest'] += intval($cpu['guest'] ?? 0);
+                $data['total']['nice'] += intval($cpu['nice']);
+                $data['total']['system'] += intval($cpu['system']);
+                $data['total']['idle'] += intval($cpu['idle']);
+                $data['total']['iowait'] += intval($cpu['iowait']);
+                $data['total']['irq'] += intval($cpu['irq']);
+                $data['total']['softirq'] += intval($cpu['softirq']);
+                $data['total']['steal'] += intval($cpu['steal']);
+                $data['total']['guest'] += intval($cpu['guest']);
             }
         }
 
@@ -274,10 +263,11 @@ class System
 
     /**
      * Gets the current usage of a core as a percentage. Passing 0 will return the usage of all cores combined.
+     * 
      *
-     * @param  int  $core
+     * 
      * @return int
-     *
+     * 
      * @throws Exception
      */
     public static function getCPUUtilisation(int $id = 0): int
@@ -302,7 +292,7 @@ class System
                     $lastData[$i]['total'] = $cpuTotal;
                     $lastData[$i]['idle'] = $cpuIdle;
 
-                    $result = (1.0 - ($idleDelta / $totalDelta)) * 100;
+                    $result = (1 - ($idleDelta / $totalDelta)) * 100;
 
                     $data[$i] = $result;
 
@@ -315,68 +305,69 @@ class System
                     return $data[$id];
                 }
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . " not supported.");
         }
     }
 
     /**
      * Returns the total amount of RAM available on the system as Megabytes.
-     *
-     * @return int
-     *
+     * 
+     * @return int|string
+     * 
      * @throws Exception
      */
-    public static function getMemoryTotal(): int
+    public static function getMemoryTotal(): int|string
     {
         switch (self::getOS()) {
-            case 'Linux':
-                $meminfo = file_get_contents('/proc/meminfo');
-                preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);
+        case 'Linux':
+            
+            $meminfo = file_get_contents('/proc/meminfo');
+            if(is_string($meminfo)==1){
+            preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);}
 
-                if (isset($matches[1])) {
-                    return intval(intval($matches[1]) / 1024);
-                } else {
-                    throw new Exception('Could not find MemTotal in /proc/meminfo.');
-                }
-                break;
-            case 'Darwin':
-                return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
-                break;
-            default:
-                throw new Exception(self::getOS().' not supported.');
+            if (isset($matches[1])) {
+                return intval(intval($matches[1]) / 1024);
+            } else {
+                throw new Exception('Could not find MemTotal in /proc/meminfo.');
+            }
+        case 'Darwin':
+            return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
+        default:
+            throw new Exception(self::getOS() . " not supported.");
         }
     }
 
     /**
      * Returns the total amount of Free RAM available on the system as Megabytes.
-     *
+     * 
      * @return int
-     *
+     * 
      * @throws Exception
      */
     public static function getMemoryFree(): int
     {
         switch (self::getOS()) {
-            case 'Linux':
-                $meminfo = file_get_contents('/proc/meminfo');
-                preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
-                if (isset($matches[1])) {
-                    return intval(intval($matches[1]) / 1024);
-                } else {
-                    throw new Exception('Could not find MemFree in /proc/meminfo.');
-                }
-            case 'Darwin':
-                return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
-            default:
-                throw new Exception(self::getOS().' not supported.');
+        case 'Linux':
+            $meminfo = file_get_contents('/proc/meminfo');
+            if(is_string($meminfo)==1){
+            preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);}
+            if (isset($matches[1])) {
+                return intval(intval($matches[1]) / 1024);
+            } else {
+                throw new Exception('Could not find MemFree in /proc/meminfo.');
+            }
+        case 'Darwin':
+            return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
+        default:
+            throw new Exception(self::getOS() . " not supported.");
         }
     }
 
     /**
      * Returns the total amount of Disk space on the system as Megabytes.
-     *
+     * 
      * @return int
-     *
+     * 
      * @throws Exception
      */
     public static function getDiskTotal(): int
@@ -392,9 +383,9 @@ class System
 
     /**
      * Returns the total amount of Disk space free on the system as Megabytes.
-     *
+     * 
      * @return int
-     *
+     * 
      * @throws Exception
      */
     public static function getDiskFree(): int
@@ -410,16 +401,17 @@ class System
 
     /**
      * Helper function to read a Linux System's /proc/diskstats data and convert it into an array.
-     *
-     * @return array
+     * 
+     * @return array<string,array<int,string>>
      */
-    private static function getDiskStats()
+    private static function getDiskStats():array
     {
         // Read /proc/diskstats
         $diskstats = file_get_contents('/proc/diskstats');
 
         // Split the data
-        $diskstats = explode("\n", $diskstats);
+        if(is_string($diskstats)==1){
+        $diskstats = explode("\n", $diskstats);}
 
         // Remove excess spaces
         $diskstats = array_map(function ($data) {
@@ -428,15 +420,16 @@ class System
 
         // Remove empty lines
         $diskstats = array_filter($diskstats, function ($data) {
-            return ! empty($data);
+            return !empty($data);
         });
 
         $data = [];
         foreach ($diskstats as $disk) {
             // Breakdown the data
+            if($data==false){
             $disk = explode(' ', $disk);
 
-            $data[$disk[2]] = $disk;
+            $data[$disk[2]] = $disk;}
         }
 
         return $data;
@@ -446,10 +439,10 @@ class System
      * Returns an array of all the available storage devices on the system containing
      * the current read and write usage in Megabytes.
      * There is also a ['total'] key that contains the total amount of read and write usage.
-     *
-     * @param  int  $duration
-     * @return array
-     *
+     * 
+     * @param int $duration
+     * @return array<int|string,mixed>
+     * 
      * @throws Exception
      */
     public static function getIOUsage($duration = 1): array
@@ -461,7 +454,7 @@ class System
         // Remove invalid disks
         $diskStat = array_filter($diskStat, function ($disk) {
             foreach (self::INVALIDDISKS as $filter) {
-                if (! isset($disk[2])) {
+                if (!isset($disk[2])) {
                     return false;
                 }
                 if (str_contains($disk[2], $filter)) {
@@ -474,7 +467,7 @@ class System
 
         $diskStat2 = array_filter($diskStat2, function ($disk) {
             foreach (self::INVALIDDISKS as $filter) {
-                if (! isset($disk[2])) {
+                if (!isset($disk[2])) {
                     return false;
                 }
 
@@ -501,22 +494,24 @@ class System
     }
 
     /**
-     * Returns an array of all the available network interfaces on the system
+     * Returns an array of all the available network interfaces on the system 
      * containing the current download and upload usage in Megabytes.
      * There is also a ['total'] key that contains the total amount of download
      * and upload
-     *
-     * @param  int  $duration The buffer duration to fetch the data points
-     * @return array
-     *
+     * 
+     * @param int $duration The buffer duration to fetch the data points
+     * @return array<int|string,mixed>
+     * 
      * @throws Exception
      */
     public static function getNetworkUsage($duration = 1): array
     {
+       
         // Create a list of interfaces
         $interfaces = scandir('/sys/class/net', SCANDIR_SORT_NONE);
 
         // Remove all unwanted interfaces
+        
         $interfaces = array_filter($interfaces, function ($interface) {
             foreach (self::INVALIDNETINTERFACES as $filter) {
                 if (str_contains($interface, $filter)) {
@@ -531,11 +526,11 @@ class System
         $IOUsage = [];
 
         foreach ($interfaces as $interface) {
-            $tx1 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/tx_bytes'));
-            $rx1 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/rx_bytes'));
+            $tx1 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
+            $rx1 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
             sleep($duration);
-            $tx2 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/tx_bytes'));
-            $rx2 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/rx_bytes'));
+            $tx2 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
+            $rx2 = intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
 
             $IOUsage[$interface]['download'] = round(($rx2 - $rx1) / 1048576, 2);
             $IOUsage[$interface]['upload'] = round(($tx2 - $tx1) / 1048576, 2);
