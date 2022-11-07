@@ -273,47 +273,37 @@ class System
     }
 
     /**
-     * Gets the current usage of a core as a percentage. Passing 0 will return the usage of all cores combined.
+     * Get percentage CPU usage (between 0 and 100)
+     * Reference for formula: https://stackoverflow.com/a/23376195/17300412
      *
-     * @param  int  $core
-     * @return int
+     * @param  int  $duration
+     * @return float
      *
      * @throws Exception
      */
-    public static function getCPUUtilisation(int $id = 0): int
+    public static function getCPUUsage(int $duration = 1): float
     {
         switch (self::getOS()) {
             case 'Linux':
-                $cpuNow = self::getProcStatData();
-                $i = 0;
+                $startCpu = self::getProcStatData()['total'];
+                \sleep($duration);
+                $endCpu = self::getProcStatData()['total'];
 
-                $data = [];
+                $prevIdle = $startCpu['idle'] + $startCpu['iowait'];
+                $idle = $endCpu['idle'] + $endCpu['iowait'];
 
-                foreach ($cpuNow as $cpu) {
-                    // Check if this is the total CPU
-                    $cpuTotal = $cpu['user'] + $cpu['nice'] + $cpu['system'] + $cpu['idle'] + $cpu['iowait'] + $cpu['irq'] + $cpu['softirq'] + $cpu['steal'];
+                $prevNonIdle = $startCpu['user'] + $startCpu['nice'] + $startCpu['system'] + $startCpu['irq'] + $startCpu['softirq'] + $startCpu['steal'];
+                $nonIdle = $endCpu['user'] + $endCpu['nice'] + $endCpu['system'] + $endCpu['irq'] + $endCpu['softirq'] + $endCpu['steal'];
 
-                    $cpuIdle = $cpu['idle'];
+                $prevTotal = $prevIdle + $prevNonIdle;
+                $total = $idle + $nonIdle;
 
-                    $idleDelta = $cpuIdle - (isset($lastData[$i]) ? $lastData[$i]['idle'] : 0);
+                $totalDiff = $total - $prevTotal;
+                $idleDiff = $idle - $prevIdle;
 
-                    $totalDelta = $cpuTotal - (isset($lastData[$i]) ? $lastData[$i]['total'] : 0);
+                $percentage = ($totalDiff - $idleDiff) / $totalDiff;
 
-                    $lastData[$i]['total'] = $cpuTotal;
-                    $lastData[$i]['idle'] = $cpuIdle;
-
-                    $result = (1.0 - ($idleDelta / $totalDelta)) * 100;
-
-                    $data[$i] = $result;
-
-                    $i++;
-                }
-
-                if ($id === 0) {
-                    return intval(array_sum($data));
-                } else {
-                    return $data[$id];
-                }
+                return $percentage * 100;
             default:
                 throw new Exception(self::getOS().' not supported.');
         }
