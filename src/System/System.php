@@ -273,53 +273,6 @@ class System
     }
 
     /**
-     * Gets the current usage of a core as a percentage. Passing 0 will return the usage of all cores combined.
-     *
-     * @param  int  $core
-     * @return int
-     *
-     * @throws Exception
-     */
-    public static function getCPUUtilisation(int $id = 0): int
-    {
-        switch (self::getOS()) {
-            case 'Linux':
-                $cpuNow = self::getProcStatData();
-                $i = 0;
-
-                $data = [];
-
-                foreach ($cpuNow as $cpu) {
-                    // Check if this is the total CPU
-                    $cpuTotal = $cpu['user'] + $cpu['nice'] + $cpu['system'] + $cpu['idle'] + $cpu['iowait'] + $cpu['irq'] + $cpu['softirq'] + $cpu['steal'];
-
-                    $cpuIdle = $cpu['idle'];
-
-                    $idleDelta = $cpuIdle - (isset($lastData[$i]) ? $lastData[$i]['idle'] : 0);
-
-                    $totalDelta = $cpuTotal - (isset($lastData[$i]) ? $lastData[$i]['total'] : 0);
-
-                    $lastData[$i]['total'] = $cpuTotal;
-                    $lastData[$i]['idle'] = $cpuIdle;
-
-                    $result = (1.0 - ($idleDelta / $totalDelta)) * 100;
-
-                    $data[$i] = $result;
-
-                    $i++;
-                }
-
-                if ($id === 0) {
-                    return intval(array_sum($data));
-                } else {
-                    return $data[$id];
-                }
-            default:
-                throw new Exception(self::getOS().' not supported.');
-        }
-    }
-
-    /**
      * Get percentage CPU usage (between 0 and 100)
      * Reference for formula: https://stackoverflow.com/a/23376195/17300412
      *

@@ -37,7 +37,7 @@ echo System::isX86(); // bool
 Utopia Framework requires PHP 7.4 or later. We recommend using the latest PHP version whenever possible.
 
 ## Supported Methods
-|         | getCPUCores | getCPUUtilisation | getMemoryTotal | getMemoryFree | getDiskTotal | getDiskFree | getIOUsage | getNetworkUsage |
+|         | getCPUCores | getCPUUsage | getMemoryTotal | getMemoryFree | getDiskTotal | getDiskFree | getIOUsage | getNetworkUsage |
 |---------|-------------|-------------------|----------------|---------------|--------------|-------------|------------|-----------------|
 | Windows | ✅           |                   |                |               | ✅            | ✅           |            |                 |
 | MacOS   | ✅           |                   | ✅              | ✅             | ✅            | ✅           |            |                 |

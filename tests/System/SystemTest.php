@@ -59,24 +59,13 @@ class SystemTest extends TestCase
     }
 
     // Methods only implemented for Linux
-    public function testGetCPUUtilisation()
-    {
-        if (System::getOS() === 'Linux') {
-            $this->assertIsInt(System::getCPUUtilisation());
-        } else {
-            $this->expectException('Exception');
-            System::getCPUUtilisation();
-        }
-    }
-
-    // Methods only implemented for Linux
     public function testGetCPUUsage()
     {
         if (System::getOS() === 'Linux') {
             $this->assertIsNumeric(System::getCPUUsage(5));
         } else {
             $this->expectException('Exception');
-            System::getCPUUtilisation();
+            System::getCPUUsage(5);
         }
     }
 
