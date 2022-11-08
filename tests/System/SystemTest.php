@@ -65,7 +65,7 @@ public function testGetCPUUsage():void
             System::getCPUUsage(5);
         }
     }
-    }
+    
 
     public function testGetMemoryTotal():void
     {
