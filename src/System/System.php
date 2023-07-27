@@ -153,7 +153,7 @@ class System
      *
      * @return bool
      */
-    public static function isArnV8(): bool
+    public static function isArmV8(): bool
     {
         return (bool) preg_match(self::RegexARMV8, self::getArch());
     }
@@ -203,7 +203,7 @@ class System
                 return self::isArmV7();
                 break;
             case self::ARMV8:
-                return self::isArnV8();
+                return self::isArmV8();
                 break;
 
             default:

@@ -30,11 +30,15 @@ class SystemTestPPC extends TestCase
 
     public function testOs()
     {
-        $this->assertFalse(System::isArm());
+        $this->assertFalse(System::isArm64());
+        $this->assertFalse(System::isArmV7());
+        $this->assertFalse(System::isArmV8());
         $this->assertTrue(System::isPPC());
         $this->assertFalse(System::isX86());
 
-        $this->assertFalse(System::isArch(System::ARM));
+        $this->assertFalse(System::isArch(System::ARM64));
+        $this->assertFalse(System::isArch(System::ARMV7));
+        $this->assertFalse(System::isArch(System::ARMV8));
         $this->assertTrue(System::isArch(System::PPC));
         $this->assertFalse(System::isArch(System::X86));
 
