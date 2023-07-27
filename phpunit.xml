@@ -18,8 +18,14 @@
         <testsuite name="PPC">
             <file>tests/System/SystemTestPPC.php</file>
         </testsuite>
-        <testsuite name="ARM">
-            <file>tests/System/SystemTestARM.php</file>
+        <testsuite name="ARM64">
+            <file>tests/System/SystemTestARM64.php</file>
+        </testsuite>
+        <testsuite name="ARMV7">
+            <file>tests/System/SystemTestARMV7.php</file>
+        </testsuite>
+        <testsuite name="ARMV8">
+            <file>tests/System/SystemTestARMV8.php</file>
         </testsuite>
     </testsuites>
 </phpunit>
