@@ -10,11 +10,19 @@ class System
 
     public const PPC = 'ppc';
 
-    public const ARM = 'arm';
+    public const ARM64 = 'arm64';
+
+    public const ARMV7 = 'armv7';
+
+    public const ARMV8 = 'armv8';
 
     private const RegExX86 = '/(x86*|i386|i686)/';
 
-    private const RegExARM = '/(aarch*|arm*)/';
+    private const RegexARM64 = '/(aarch64)/';
+
+    private const RegexARMV7 = '/(armv7)/';
+
+    private const RegexARMV8 = '/(armv8)/';
 
     private const RegExPPC = '/(ppc*)/';
 
@@ -96,8 +104,12 @@ class System
             case preg_match(self::RegExPPC, $arch):
                 return System::PPC;
                 break;
-            case preg_match(self::RegExARM, $arch):
-                return System::ARM;
+            case preg_match(self::RegexARM64, $arch):
+                return System::ARM64;
+            case preg_match(self::ARMV7, $arch):
+                return System::ARMV7;
+            case preg_match(self::ARMV8, $arch):
+                return System::ARMV8;
                 break;
 
             default:
@@ -117,13 +129,33 @@ class System
     }
 
     /**
-     * Checks if the system is running on an ARM architecture.
+     * Checks if the system is running on an ARM64 architecture.
      *
      * @return bool
      */
-    public static function isArm(): bool
+    public static function isArm64(): bool
     {
-        return (bool) preg_match(self::RegExARM, self::getArch());
+        return (bool) preg_match(self::RegexARM64, self::getArch());
+    }
+
+    /**
+     * Checks if the system is running on an ARMV7 architecture.
+     *
+     * @return bool
+     */
+    public static function isArmV7(): bool
+    {
+        return (bool) preg_match(self::RegexARMV7, self::getArch());
+    }
+
+    /**
+     * Checks if the system is running on an ARM64 architecture.
+     *
+     * @return bool
+     */
+    public static function isArnV8(): bool
+    {
+        return (bool) preg_match(self::RegexARMV8, self::getArch());
     }
 
     /**
@@ -164,8 +196,14 @@ class System
             case self::PPC:
                 return self::isPPC();
                 break;
-            case self::ARM:
-                return self::isArm();
+            case self::ARM64:
+                return self::isArm64();
+                break;
+            case self::ARMV7:
+                return self::isArmV7();
+                break;
+            case self::ARMV8:
+                return self::isArnV8();
                 break;
 
             default:
