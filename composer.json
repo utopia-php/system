@@ -23,7 +23,7 @@
       "format": "./vendor/bin/pint"
     },
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.0.0",
         "laravel/pint": "1.2.*"
     },
     "require-dev": {
