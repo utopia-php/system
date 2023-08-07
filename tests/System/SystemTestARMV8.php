@@ -18,7 +18,7 @@ namespace Utopia\Tests;
 use PHPUnit\Framework\TestCase;
 use Utopia\System\System;
 
-class SystemTestPPC extends TestCase
+class SystemTestARMV8 extends TestCase
 {
     public function setUp(): void
     {
@@ -32,16 +32,16 @@ class SystemTestPPC extends TestCase
     {
         $this->assertFalse(System::isArm64());
         $this->assertFalse(System::isArmV7());
-        $this->assertFalse(System::isArmV8());
-        $this->assertTrue(System::isPPC());
+        $this->assertTrue(System::isArmV8());
+        $this->assertFalse(System::isPPC());
         $this->assertFalse(System::isX86());
 
         $this->assertFalse(System::isArch(System::ARM64));
         $this->assertFalse(System::isArch(System::ARMV7));
-        $this->assertFalse(System::isArch(System::ARMV8));
-        $this->assertTrue(System::isArch(System::PPC));
+        $this->assertTrue(System::isArch(System::ARMV8));
+        $this->assertFalse(System::isArch(System::PPC));
         $this->assertFalse(System::isArch(System::X86));
 
-        $this->assertEquals(System::PPC, System::getArchEnum());
+        $this->assertEquals(System::ARMV8, System::getArchEnum());
     }
 }

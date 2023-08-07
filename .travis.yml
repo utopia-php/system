@@ -7,7 +7,6 @@ arch:
 - arm64
 
 php:
-- 7.4
 - 8.0
 - 8.0.23
 
@@ -24,4 +23,4 @@ script:
 - vendor/bin/phpunit --configuration phpunit.xml --testsuite General
 - vendor/bin/psalm --show-info=true
 - if [ "$TRAVIS_CPU_ARCH" = "amd64" ]; then vendor/bin/phpunit --configuration phpunit.xml --testsuite X86; fi
-- if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then vendor/bin/phpunit --configuration phpunit.xml --testsuite ARM; fi
+- if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then vendor/bin/phpunit --configuration phpunit.xml --testsuite ARM64; fi

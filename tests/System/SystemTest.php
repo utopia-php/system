@@ -33,10 +33,14 @@ class SystemTest extends TestCase
         $this->assertIsString(System::getArch());
         $this->assertIsString(System::getArchEnum());
         $this->assertIsString(System::getHostname());
-        $this->assertIsBool(System::isArm());
+        $this->assertIsBool(System::isArm64());
+        $this->assertIsBool(System::isArmV7());
+        $this->assertIsBool(System::isArmV8());
         $this->assertIsBool(System::isPPC());
         $this->assertIsBool(System::isX86());
-        $this->assertIsBool(System::isArch(System::ARM));
+        $this->assertIsBool(System::isArch(System::ARM64));
+        $this->assertIsBool(System::isArch(System::ARMV7));
+        $this->assertIsBool(System::isArch(System::ARMV8));
         $this->assertIsBool(System::isArch(System::X86));
         $this->assertIsBool(System::isArch(System::PPC));
         $this->expectException('Exception');
