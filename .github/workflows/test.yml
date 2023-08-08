@@ -9,7 +9,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php-versions: ['7.0', '8.0', '8.0.23','nightly']
+                php-versions: ['7.4', '8.0','nightly']
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
