@@ -21,8 +21,8 @@
     "scripts": {
       "lint": "./vendor/bin/pint --test",
       "format": "./vendor/bin/pint",
-      "test": "vendor/bin/phpunit --configuration phpunit.xml --testsuite General",
-      "analyse": "vendor/bin/psalm --show-info=true"
+      "test": "./vendor/bin/phpunit --configuration phpunit.xml --testsuite General",
+      "analyse": "./vendor/bin/psalm --show-info=true"
     },
     "require": {
         "php": ">=8.0.0",
