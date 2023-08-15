@@ -1,15 +1,12 @@
 name: "Tests"
 
-on: [pull_request]
+on: [pull_request, push]
 
 
 jobs: 
     test:
         name: "Unit & E2E Test"
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                php-versions: ['7.4', '8.0','nightly']
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
