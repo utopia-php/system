@@ -18,7 +18,7 @@ class System
 
     private const RegExX86 = '/(x86*|i386|i686)/';
 
-    private const RegexARM64 = '/(aarch64)/';
+    private const RegexARM64 = '/(arm64|aarch64)/';
 
     private const RegexARMV7 = '/(armv7)/';
 
