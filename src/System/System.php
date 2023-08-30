@@ -18,7 +18,7 @@ class System
 
     private const RegExX86 = '/(x86*|i386|i686)/';
 
-    private const RegexARM64 = '/(aarch64)/';
+    private const RegexARM64 = '/(arm64|aarch64)/';
 
     private const RegexARMV7 = '/(armv7)/';
 
@@ -100,21 +100,16 @@ class System
         switch (1) {
             case preg_match(self::RegExX86, $arch):
                 return System::X86;
-                break;
             case preg_match(self::RegExPPC, $arch):
                 return System::PPC;
-                break;
             case preg_match(self::RegexARM64, $arch):
                 return System::ARM64;
             case preg_match(self::ARMV7, $arch):
                 return System::ARMV7;
             case preg_match(self::ARMV8, $arch):
                 return System::ARMV8;
-                break;
-
             default:
                 throw new Exception("'{$arch}' enum not found.");
-                break;
         }
     }
 
