@@ -500,7 +500,7 @@ class System
 
         $diskStat2 = array_filter($diskStat2, function ($disk) {
             foreach (self::INVALID_DISKS as $filter) {
-                if (! isset($disk[2]) || !\is_string($disk[2])) {
+                if (!isset($disk[2]) || !\is_string($disk[2])) {
                     return false;
                 }
 
@@ -516,21 +516,21 @@ class System
 
         // Compute Delta
         foreach ($diskStat as $key => $disk) {
-            $read1 = $diskStat2[$key][5];
-            $read2 = $disk[5];
+            $read2 = $diskStat2[$key][5];
+            $read1 = $disk[5];
 
-            $write1 = $diskStat2[$key][9];
-            $write2 = $disk[9];
-
-            /**
-             * @phpstan-ignore-next-line
-             */
-            $stats[$key]['read'] = (((intval($read1) - intval($read2)) * 512) / 1048576);
+            $write2 = $diskStat2[$key][9];
+            $write1 = $disk[9];
 
             /**
              * @phpstan-ignore-next-line
              */
-            $stats[$key]['write'] = (((intval($write1) - intval($write2)) * 512) / 1048576);
+            $stats[$key]['read'] = (((intval($read2) - intval($read1)) * 512) / 1048576);
+
+            /**
+             * @phpstan-ignore-next-line
+             */
+            $stats[$key]['write'] = (((intval($write2) - intval($write1)) * 512) / 1048576);
         }
 
         $stats['total']['read'] = array_sum(array_column($stats, 'read'));
@@ -555,7 +555,7 @@ class System
         // Create a list of interfaces
         $interfaces = scandir('/sys/class/net', SCANDIR_SORT_NONE);
 
-        if (! $interfaces) {
+        if (!$interfaces) {
             throw new Exception('Unable to read /sys/class/net');
         }
 
