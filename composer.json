@@ -16,19 +16,26 @@
         }
     ],
     "autoload": {
-        "psr-4": {"Utopia\\System\\": "src/System"}
+        "psr-4": {
+            "Utopia\\System\\": "src/System"
+        }
     },
     "scripts": {
-      "lint": "./vendor/bin/pint --test",
-      "format": "./vendor/bin/pint"
+        "lint": "./vendor/bin/pint --test",
+        "format": "./vendor/bin/pint",
+        "check": "./vendor/bin/phpstan analyse --level=max --memory-limit=1G src"
     },
     "require": {
-        "php": ">=8.0.0",
-        "laravel/pint": "1.2.*"
+        "php": ">=8.0.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3",
-        "vimeo/psalm": "4.0.1",
-        "squizlabs/php_codesniffer": "^3.6"
+        "phpunit/phpunit": "9.6.*",
+        "laravel/pint": "1.13.*",
+        "phpstan/phpstan": "1.10.*"
+    },
+    "config": {
+        "platform": {
+            "php": "8.0"
+        }
     }
 }
