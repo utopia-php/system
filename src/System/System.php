@@ -356,6 +356,7 @@ class System
                 } else {
                     throw new Exception('Unable to find memtotal in /proc/meminfo.');
                 }
+                // no break
             case 'Darwin':
                 return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
             default:
@@ -386,6 +387,7 @@ class System
                 } else {
                     throw new Exception('Could not find MemFree in /proc/meminfo.');
                 }
+                // no break
             case 'Darwin':
                 return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
             default:
