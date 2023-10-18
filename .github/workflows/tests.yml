@@ -34,4 +34,10 @@ jobs:
         sleep 10
 
     - name: Run Tests
-      run: docker compose exec -T tests vendor/bin/phpunit --configuration phpunit.xml
+      run: |
+        arch=$(uname -m)
+        if [ "${arch}" = "amd64" ]; then 
+            docker compose exec tests vendor/bin/phpunit --configuration phpunit.xml --testsuite X86;
+        elif [ "${arch}" = "arm64" ] || [ "${arch}" = "aarch64" ]; then
+            docker compose exec tests vendor/bin/phpunit --configuration phpunit.xml --testsuite ARM64; 
+        fi
