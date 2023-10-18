@@ -36,8 +36,10 @@ class System
      * Documentation:
      * Loop - https://man7.org/linux/man-pages/man4/loop.4.html
      * Ram - https://man7.org/linux/man-pages/man4/ram.4.html
+     *
+     * @var array<int, string>
      */
-    private const INVALIDDISKS = [
+    private const INVALID_DISKS = [
         'loop',
         'ram',
     ];
@@ -97,20 +99,14 @@ class System
     public static function getArchEnum(): string
     {
         $arch = self::getArch();
-        switch (1) {
-            case preg_match(self::RegExX86, $arch):
-                return System::X86;
-            case preg_match(self::RegExPPC, $arch):
-                return System::PPC;
-            case preg_match(self::RegexARM64, $arch):
-                return System::ARM64;
-            case preg_match(self::ARMV7, $arch):
-                return System::ARMV7;
-            case preg_match(self::ARMV8, $arch):
-                return System::ARMV8;
-            default:
-                throw new Exception("'{$arch}' enum not found.");
-        }
+        return match (1) {
+            preg_match(self::RegExX86, $arch) => System::X86,
+            preg_match(self::RegExPPC, $arch) => System::PPC,
+            preg_match(self::RegexARM64, $arch) => System::ARM64,
+            preg_match('/' . self::ARMV7 . '/', $arch) => System::ARMV7,
+            preg_match('/' . self::ARMV8 . '/', $arch) => System::ARMV8,
+            default => throw new Exception("'{$arch}' enum not found."),
+        };
     }
 
     /**
@@ -184,27 +180,14 @@ class System
      */
     public static function isArch(string $arch): bool
     {
-        switch ($arch) {
-            case self::X86:
-                return self::isX86();
-                break;
-            case self::PPC:
-                return self::isPPC();
-                break;
-            case self::ARM64:
-                return self::isArm64();
-                break;
-            case self::ARMV7:
-                return self::isArmV7();
-                break;
-            case self::ARMV8:
-                return self::isArmV8();
-                break;
-
-            default:
-                throw new Exception("'{$arch}' not found.");
-                break;
-        }
+        return match ($arch) {
+            self::X86 => self::isX86(),
+            self::PPC => self::isPPC(),
+            self::ARM64 => self::isArm64(),
+            self::ARMV7 => self::isArmV7(),
+            self::ARMV8 => self::isArmV8(),
+            default => throw new Exception("'{$arch}' not found."),
+        };
     }
 
     /**
@@ -218,8 +201,12 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                $cpuinfo = file_get_contents('/proc/cpuinfo');
-                preg_match_all('/^processor/m', $cpuinfo, $matches);
+                $cpuInfo = file_get_contents('/proc/cpuinfo');
+                $matches[] = [];
+
+                if ($cpuInfo) {
+                    preg_match_all('/^processor/m', $cpuInfo, $matches);
+                }
 
                 return count($matches[0]);
             case 'Darwin':
@@ -234,7 +221,7 @@ class System
     /**
      * Helper function to read a Linux System's /proc/stat data and convert it into an array.
      *
-     * @return array
+     * @return array<int|string, array<string, mixed>>
      */
     private static function getProcStatData(): array
     {
@@ -243,6 +230,10 @@ class System
         $totalCPUExists = false;
 
         $cpustats = file_get_contents('/proc/stat');
+
+        if (!$cpustats) {
+            throw new Exception('Unable to read /proc/stat');
+        }
 
         $cpus = explode("\n", $cpustats);
 
@@ -291,14 +282,14 @@ class System
 
             foreach ($data as $cpu) {
                 $data['total']['user'] += intval($cpu['user']);
-                $data['total']['nice'] += intval($cpu['nice'] ?? 0);
-                $data['total']['system'] += intval($cpu['system'] ?? 0);
-                $data['total']['idle'] += intval($cpu['idle'] ?? 0);
-                $data['total']['iowait'] += intval($cpu['iowait'] ?? 0);
-                $data['total']['irq'] += intval($cpu['irq'] ?? 0);
-                $data['total']['softirq'] += intval($cpu['softirq'] ?? 0);
-                $data['total']['steal'] += intval($cpu['steal'] ?? 0);
-                $data['total']['guest'] += intval($cpu['guest'] ?? 0);
+                $data['total']['nice'] += intval($cpu['nice']);
+                $data['total']['system'] += intval($cpu['system']);
+                $data['total']['idle'] += intval($cpu['idle']);
+                $data['total']['iowait'] += intval($cpu['iowait']);
+                $data['total']['irq'] += intval($cpu['irq']);
+                $data['total']['softirq'] += intval($cpu['softirq']);
+                $data['total']['steal'] += intval($cpu['steal']);
+                $data['total']['guest'] += intval($cpu['guest']);
             }
         }
 
@@ -353,18 +344,20 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                $meminfo = file_get_contents('/proc/meminfo');
-                preg_match('/MemTotal:\s+(\d+)/', $meminfo, $matches);
+                $memInfo = file_get_contents('/proc/meminfo');
+
+                if (!$memInfo) {
+                    throw new Exception('Unable to read /proc/meminfo');
+                }
+                preg_match('/MemTotal:\s+(\d+)/', $memInfo, $matches);
 
                 if (isset($matches[1])) {
                     return intval(intval($matches[1]) / 1024);
                 } else {
-                    throw new Exception('Could not find MemTotal in /proc/meminfo.');
+                    throw new Exception('Unable to find memtotal in /proc/meminfo.');
                 }
-                break;
             case 'Darwin':
                 return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
-                break;
             default:
                 throw new Exception(self::getOS().' not supported.');
         }
@@ -382,6 +375,11 @@ class System
         switch (self::getOS()) {
             case 'Linux':
                 $meminfo = file_get_contents('/proc/meminfo');
+
+                if (!$meminfo) {
+                    throw new Exception('Unable to read /proc/meminfo');
+                }
+
                 preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
                 if (isset($matches[1])) {
                     return intval(intval($matches[1]) / 1024);
@@ -434,28 +432,32 @@ class System
     /**
      * Helper function to read a Linux System's /proc/diskstats data and convert it into an array.
      *
-     * @return array
+     * @return array<string, array<int, mixed>>
      */
-    private static function getDiskStats()
+    private static function getDiskStats(): array
     {
         // Read /proc/diskstats
-        $diskstats = file_get_contents('/proc/diskstats');
+        $diskStats = file_get_contents('/proc/diskstats');
+
+        if (!$diskStats) {
+            throw new Exception('Unable to read /proc/diskstats');
+        }
 
         // Split the data
-        $diskstats = explode("\n", $diskstats);
+        $diskStats = explode("\n", $diskStats);
 
         // Remove excess spaces
-        $diskstats = array_map(function ($data) {
+        $diskStats = array_map(function ($data) {
             return preg_replace('/\t+/', ' ', trim($data));
-        }, $diskstats);
+        }, $diskStats);
 
         // Remove empty lines
-        $diskstats = array_filter($diskstats, function ($data) {
+        $diskStats = array_filter($diskStats, function ($data) {
             return ! empty($data);
         });
 
         $data = [];
-        foreach ($diskstats as $disk) {
+        foreach ($diskStats as $disk) {
             // Breakdown the data
             $disk = explode(' ', $disk);
 
@@ -471,20 +473,19 @@ class System
      * There is also a ['total'] key that contains the total amount of read and write usage.
      *
      * @param  int  $duration
-     * @return array
+     * @return array<string, array<string, mixed>>
      *
      * @throws Exception
      */
-    public static function getIOUsage($duration = 1): array
+    public static function getIOUsage(int $duration = 1): array
     {
         $diskStat = self::getDiskStats();
         sleep($duration);
         $diskStat2 = self::getDiskStats();
 
-        // Remove invalid disks
-        $diskStat = array_filter($diskStat, function ($disk) {
-            foreach (self::INVALIDDISKS as $filter) {
-                if (! isset($disk[2])) {
+        $diskStat = array_filter($diskStat, function (array $disk) {
+            foreach (self::INVALID_DISKS as $filter) {
+                if (!isset($disk[2]) || !\is_string($disk[2])) {
                     return false;
                 }
                 if (str_contains($disk[2], $filter)) {
@@ -496,8 +497,8 @@ class System
         });
 
         $diskStat2 = array_filter($diskStat2, function ($disk) {
-            foreach (self::INVALIDDISKS as $filter) {
-                if (! isset($disk[2])) {
+            foreach (self::INVALID_DISKS as $filter) {
+                if (! isset($disk[2]) || !\is_string($disk[2])) {
                     return false;
                 }
 
@@ -513,8 +514,21 @@ class System
 
         // Compute Delta
         foreach ($diskStat as $key => $disk) {
-            $stats[$key]['read'] = (((intval($diskStat2[$key][5]) - intval($disk[5])) * 512) / 1048576);
-            $stats[$key]['write'] = (((intval($diskStat2[$key][9]) - intval($disk[9])) * 512) / 1048576);
+            $read1 = $diskStat2[$key][5];
+            $read2 = $disk[5];
+
+            $write1 = $diskStat2[$key][9];
+            $write2 = $disk[9];
+
+            /**
+             * @phpstan-ignore-next-line
+             */
+            $stats[$key]['read'] = (((intval($read1) - intval($read2)) * 512) / 1048576);
+
+            /**
+             * @phpstan-ignore-next-line
+             */
+            $stats[$key]['write'] = (((intval($write1) - intval($write2)) * 512) / 1048576);
         }
 
         $stats['total']['read'] = array_sum(array_column($stats, 'read'));
@@ -530,14 +544,18 @@ class System
      * and upload
      *
      * @param  int  $duration The buffer duration to fetch the data points
-     * @return array
+     * @return array<int|string, array<string, float|int>>
      *
      * @throws Exception
      */
-    public static function getNetworkUsage($duration = 1): array
+    public static function getNetworkUsage(int $duration = 1): array
     {
         // Create a list of interfaces
         $interfaces = scandir('/sys/class/net', SCANDIR_SORT_NONE);
+
+        if (! $interfaces) {
+            throw new Exception('Unable to read /sys/class/net');
+        }
 
         // Remove all unwanted interfaces
         $interfaces = array_filter($interfaces, function ($interface) {
