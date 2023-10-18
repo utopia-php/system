@@ -28,7 +28,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Start Databases
+    - name: Start Containers
       run:  |
         docker compose up -d
         sleep 10
