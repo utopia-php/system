@@ -71,6 +71,8 @@ class System
 
     /**
      * Returns the system's OS.
+     *
+     * @return string
      */
     public static function getOS(): string
     {
@@ -79,6 +81,8 @@ class System
 
     /**
      * Returns the architecture of the system's processor.
+     *
+     * @return string
      */
     public static function getArch(): string
     {
@@ -88,25 +92,27 @@ class System
     /**
      * Returns the architecture's Enum of the system's processor.
      *
+     * @return string
      *
      * @throws Exception
      */
     public static function getArchEnum(): string
     {
         $arch = self::getArch();
-
         return match (1) {
             preg_match(self::RegExX86, $arch) => System::X86,
             preg_match(self::RegExPPC, $arch) => System::PPC,
             preg_match(self::RegexARM64, $arch) => System::ARM64,
-            preg_match('/'.self::ARMV7.'/', $arch) => System::ARMV7,
-            preg_match('/'.self::ARMV8.'/', $arch) => System::ARMV8,
+            preg_match('/' . self::ARMV7 . '/', $arch) => System::ARMV7,
+            preg_match('/' . self::ARMV8 . '/', $arch) => System::ARMV8,
             default => throw new Exception("'{$arch}' enum not found."),
         };
     }
 
     /**
      * Returns the system's hostname.
+     *
+     * @return string
      */
     public static function getHostname(): string
     {
@@ -115,6 +121,8 @@ class System
 
     /**
      * Checks if the system is running on an ARM64 architecture.
+     *
+     * @return bool
      */
     public static function isArm64(): bool
     {
@@ -123,6 +131,8 @@ class System
 
     /**
      * Checks if the system is running on an ARMV7 architecture.
+     *
+     * @return bool
      */
     public static function isArmV7(): bool
     {
@@ -131,6 +141,8 @@ class System
 
     /**
      * Checks if the system is running on an ARM64 architecture.
+     *
+     * @return bool
      */
     public static function isArmV8(): bool
     {
@@ -139,6 +151,8 @@ class System
 
     /**
      * Checks if the system is running on an X86 architecture.
+     *
+     * @return bool
      */
     public static function isX86(): bool
     {
@@ -147,6 +161,8 @@ class System
 
     /**
      * Checks if the system is running on an PowerPC architecture.
+     *
+     * @return bool
      */
     public static function isPPC(): bool
     {
@@ -157,6 +173,8 @@ class System
      * Checks if the system is the passed architecture.
      * You should pass `System::X86`, `System::PPC`, `System::ARM` or an equivalent string.
      *
+     * @param  string  $arch
+     * @return bool
      *
      * @throws Exception
      */
@@ -175,6 +193,7 @@ class System
     /**
      * Gets the system's total amount of CPU cores.
      *
+     * @return int
      *
      * @throws Exception
      */
@@ -212,7 +231,7 @@ class System
 
         $cpustats = file_get_contents('/proc/stat');
 
-        if (! $cpustats) {
+        if (!$cpustats) {
             throw new Exception('Unable to read /proc/stat');
         }
 
@@ -281,6 +300,8 @@ class System
      * Get percentage CPU usage (between 0 and 100)
      * Reference for formula: https://stackoverflow.com/a/23376195/17300412
      *
+     * @param  int  $duration
+     * @return float
      *
      * @throws Exception
      */
@@ -315,6 +336,7 @@ class System
     /**
      * Returns the total amount of RAM available on the system as Megabytes.
      *
+     * @return int
      *
      * @throws Exception
      */
@@ -324,7 +346,7 @@ class System
             case 'Linux':
                 $memInfo = file_get_contents('/proc/meminfo');
 
-                if (! $memInfo) {
+                if (!$memInfo) {
                     throw new Exception('Unable to read /proc/meminfo');
                 }
                 preg_match('/MemTotal:\s+(\d+)/', $memInfo, $matches);
@@ -344,6 +366,7 @@ class System
     /**
      * Returns the total amount of Free RAM available on the system as Megabytes.
      *
+     * @return int
      *
      * @throws Exception
      */
@@ -353,7 +376,7 @@ class System
             case 'Linux':
                 $meminfo = file_get_contents('/proc/meminfo');
 
-                if (! $meminfo) {
+                if (!$meminfo) {
                     throw new Exception('Unable to read /proc/meminfo');
                 }
 
@@ -373,6 +396,7 @@ class System
     /**
      * Returns the total amount of Disk space on the system as Megabytes.
      *
+     * @return int
      *
      * @throws Exception
      */
@@ -390,6 +414,7 @@ class System
     /**
      * Returns the total amount of Disk space free on the system as Megabytes.
      *
+     * @return int
      *
      * @throws Exception
      */
@@ -414,7 +439,7 @@ class System
         // Read /proc/diskstats
         $diskStats = file_get_contents('/proc/diskstats');
 
-        if (! $diskStats) {
+        if (!$diskStats) {
             throw new Exception('Unable to read /proc/diskstats');
         }
 
@@ -447,6 +472,7 @@ class System
      * the current read and write usage in Megabytes.
      * There is also a ['total'] key that contains the total amount of read and write usage.
      *
+     * @param  int  $duration
      * @return array<string, array<string, mixed>>
      *
      * @throws Exception
@@ -459,7 +485,7 @@ class System
 
         $diskStat = array_filter($diskStat, function (array $disk) {
             foreach (self::INVALID_DISKS as $filter) {
-                if (! isset($disk[2]) || ! \is_string($disk[2])) {
+                if (!isset($disk[2]) || !\is_string($disk[2])) {
                     return false;
                 }
                 if (str_contains($disk[2], $filter)) {
@@ -472,7 +498,7 @@ class System
 
         $diskStat2 = array_filter($diskStat2, function ($disk) {
             foreach (self::INVALID_DISKS as $filter) {
-                if (! isset($disk[2]) || ! \is_string($disk[2])) {
+                if (! isset($disk[2]) || !\is_string($disk[2])) {
                     return false;
                 }
 
