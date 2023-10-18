@@ -23,7 +23,7 @@
     "scripts": {
         "lint": "./vendor/bin/pint --test",
         "format": "./vendor/bin/pint",
-        "check": "./vendor/bin/phpstan analyse --level=max --memory-limit=1G src"
+        "check": "./vendor/bin/phpstan analyse --level=max --memory-limit=1G src tests"
     },
     "require": {
         "php": ">=8.0.0"
