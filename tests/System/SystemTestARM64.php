@@ -28,7 +28,7 @@ class SystemTestARM64 extends TestCase
     {
     }
 
-    public function testOs()
+    public function testOs(): void
     {
         $this->assertTrue(System::isArm64());
         $this->assertFalse(System::isArmV7());
