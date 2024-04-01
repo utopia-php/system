@@ -118,5 +118,6 @@ class SystemTest extends TestCase
         $this->assertEquals(System::getEnv('TESTA', 'DEFAULTA'), 'VALUEA');
         $this->assertEquals(System::getEnv('TESTB', 'DEFAULTB'), 'VALUEB');
         $this->assertEquals(System::getEnv('TESTC', 'DEFAULTC'), 'DEFAULTC');
+        $this->assertEquals(System::getEnv('TESTC'), null);
     }
 }

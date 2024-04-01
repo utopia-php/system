@@ -524,9 +524,9 @@ class System
      *
      * @return bool
      */
-    public static function getEnv(string $name, string $default = null): string|bool
+    public static function getEnv(string $name, string $default = null): ?string
     {
-        return getenv($name) ?? $default;
+        return getenv($name) ?: $default;
     }
 
     /**
