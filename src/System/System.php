@@ -120,77 +120,6 @@ class System
     }
 
     /**
-     * Checks if the system is running on an ARM64 architecture.
-     *
-     * @return bool
-     */
-    public static function isArm64(): bool
-    {
-        return (bool) preg_match(self::RegexARM64, self::getArch());
-    }
-
-    /**
-     * Checks if the system is running on an ARMV7 architecture.
-     *
-     * @return bool
-     */
-    public static function isArmV7(): bool
-    {
-        return (bool) preg_match(self::RegexARMV7, self::getArch());
-    }
-
-    /**
-     * Checks if the system is running on an ARM64 architecture.
-     *
-     * @return bool
-     */
-    public static function isArmV8(): bool
-    {
-        return (bool) preg_match(self::RegexARMV8, self::getArch());
-    }
-
-    /**
-     * Checks if the system is running on an X86 architecture.
-     *
-     * @return bool
-     */
-    public static function isX86(): bool
-    {
-        return (bool) preg_match(self::RegExX86, self::getArch());
-    }
-
-    /**
-     * Checks if the system is running on an PowerPC architecture.
-     *
-     * @return bool
-     */
-    public static function isPPC(): bool
-    {
-        return (bool) preg_match(self::RegExPPC, self::getArch());
-    }
-
-    /**
-     * Checks if the system is the passed architecture.
-     * You should pass `System::X86`, `System::PPC`, `System::ARM` or an equivalent string.
-     *
-     * @param  string  $arch
-     * @return bool
-     *
-     * @throws Exception
-     */
-    public static function isArch(string $arch): bool
-    {
-        return match ($arch) {
-            self::X86 => self::isX86(),
-            self::PPC => self::isPPC(),
-            self::ARM64 => self::isArm64(),
-            self::ARMV7 => self::isArmV7(),
-            self::ARMV8 => self::isArmV8(),
-            default => throw new Exception("'{$arch}' not found."),
-        };
-    }
-
-    /**
      * Gets the system's total amount of CPU cores.
      *
      * @return int
@@ -238,8 +167,8 @@ class System
         $cpus = explode("\n", $cpustats);
 
         // Remove non-CPU lines
-        $cpus = array_filter($cpus, function ($cpu) {
-            return preg_match('/^cpu[0-999]/', $cpu);
+        $cpus = array_filter($cpus, function (string $cpu): bool {
+            return (bool)preg_match('/^cpu[0-999]/', $cpu);
         });
 
         foreach ($cpus as $cpu) {
@@ -588,5 +517,86 @@ class System
         $IOUsage['total']['upload'] = array_sum(array_column($IOUsage, 'upload'));
 
         return $IOUsage;
+    }
+
+    /**
+     * Checks if the system is running on an ARM64 architecture.
+     *
+     * @return string|null
+     */
+    public static function getEnv(string $name, string $default = null): ?string
+    {
+        return getenv($name) ?: $default;
+    }
+
+    /**
+     * Checks if the system is running on an ARM64 architecture.
+     *
+     * @return bool
+     */
+    public static function isArm64(): bool
+    {
+        return (bool) preg_match(self::RegexARM64, self::getArch());
+    }
+
+    /**
+     * Checks if the system is running on an ARMV7 architecture.
+     *
+     * @return bool
+     */
+    public static function isArmV7(): bool
+    {
+        return (bool) preg_match(self::RegexARMV7, self::getArch());
+    }
+
+    /**
+     * Checks if the system is running on an ARM64 architecture.
+     *
+     * @return bool
+     */
+    public static function isArmV8(): bool
+    {
+        return (bool) preg_match(self::RegexARMV8, self::getArch());
+    }
+
+    /**
+     * Checks if the system is running on an X86 architecture.
+     *
+     * @return bool
+     */
+    public static function isX86(): bool
+    {
+        return (bool) preg_match(self::RegExX86, self::getArch());
+    }
+
+    /**
+     * Checks if the system is running on an PowerPC architecture.
+     *
+     * @return bool
+     */
+    public static function isPPC(): bool
+    {
+        return (bool) preg_match(self::RegExPPC, self::getArch());
+    }
+
+    /**
+     * Checks if the system is the passed architecture.
+     * You should pass `System::X86`, `System::PPC`, `System::ARM` or an equivalent string.
+     *
+     * @param  string  $arch
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public static function isArch(string $arch): bool
+    {
+        return match ($arch) {
+            self::X86 => self::isX86(),
+            self::PPC => self::isPPC(),
+            self::ARM64 => self::isArm64(),
+            self::ARMV7 => self::isArmV7(),
+            self::ARMV8 => self::isArmV8(),
+            default => throw new Exception("'{$arch}' not found."),
+        };
     }
 }
