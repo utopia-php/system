@@ -26,6 +26,7 @@ use Utopia\System\System;
 echo System::getOS(); // prints "Linux" for example
 echo System::getHostname(); // Your hostname
 echo System::getArch(); // x86_64
+echo System::getEnv('MY_ENV_VAR'); // test
 
 echo System::isArm(); // bool
 echo System::isPPC(); // bool
