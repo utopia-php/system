@@ -112,4 +112,11 @@ class SystemTest extends TestCase
             System::getNetworkUsage();
         }
     }
+
+    public function testGetEnv(): void
+    {
+        $this->assertEquals(System::getEnv('TESTA', 'DEFAULTA'), 'VALUEA');
+        $this->assertEquals(System::getEnv('TESTB', 'DEFAULTB'), 'VALUEB');
+        $this->assertEquals(System::getEnv('TESTC', 'DEFAULTC'), 'DEFAULTC');
+    }
 }
