@@ -167,7 +167,7 @@ class System
         $cpus = explode("\n", $cpustats);
 
         // Remove non-CPU lines
-        $cpus = array_filter($cpus, function ($cpu) {
+        $cpus = array_filter($cpus, function (string $cpu) {
             return preg_match('/^cpu[0-999]/', $cpu);
         });
 
@@ -522,7 +522,7 @@ class System
     /**
      * Checks if the system is running on an ARM64 architecture.
      *
-     * @return bool
+     * @return string|null
      */
     public static function getEnv(string $name, string $default = null): ?string
     {
