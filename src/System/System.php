@@ -167,7 +167,7 @@ class System
         $cpus = explode("\n", $cpustats);
 
         // Remove non-CPU lines
-        $cpus = array_filter($cpus, function (string $cpu) {
+        $cpus = array_filter($cpus, function (string $cpu): bool {
             return preg_match('/^cpu[0-999]/', $cpu);
         });
 
