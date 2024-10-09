@@ -262,6 +262,21 @@ class System
         }
     }
 
+    private static function getProcMemoryInfo(string $field): int
+    {
+        $memInfo = file_get_contents('/proc/meminfo');
+        if (!$memInfo) {
+            throw new Exception('Unable to read /proc/meminfo');
+        }
+
+        preg_match(sprintf('/%s:\s+(\d+)/', $field), $memInfo, $matches);
+        if (isset($matches[1])) {
+            return intval(intval($matches[1]) / 1024);
+        } else {
+            throw new Exception("Unable to find {$field} in /proc/meminfo.");
+        }
+    }
+
     /**
      * Returns the total amount of RAM available on the system as Megabytes.
      *
@@ -273,19 +288,7 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                $memInfo = file_get_contents('/proc/meminfo');
-
-                if (!$memInfo) {
-                    throw new Exception('Unable to read /proc/meminfo');
-                }
-                preg_match('/MemTotal:\s+(\d+)/', $memInfo, $matches);
-
-                if (isset($matches[1])) {
-                    return intval(intval($matches[1]) / 1024);
-                } else {
-                    throw new Exception('Unable to find memtotal in /proc/meminfo.');
-                }
-                // no break
+                return self::getProcMemoryInfo("MemTotal");
             case 'Darwin':
                 return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
             default:
@@ -304,21 +307,28 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                $meminfo = file_get_contents('/proc/meminfo');
-
-                if (!$meminfo) {
-                    throw new Exception('Unable to read /proc/meminfo');
-                }
-
-                preg_match('/MemFree:\s+(\d+)/', $meminfo, $matches);
-                if (isset($matches[1])) {
-                    return intval(intval($matches[1]) / 1024);
-                } else {
-                    throw new Exception('Could not find MemFree in /proc/meminfo.');
-                }
-                // no break
+                return self::getProcMemoryInfo("MemFree");
             case 'Darwin':
                 return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
+            default:
+                throw new Exception(self::getOS().' not supported.');
+        }
+    }
+
+    /**
+     * Returns the total amount of Available RAM on the system as Megabytes.
+     *
+     * @return int
+     *
+     * @throws Exception
+     */
+    public static function getMemoryAvailable(): int
+    {
+        switch (self::getOS()) {
+            case 'Linux':
+                return self::getProcMemoryInfo("MemAvailable");
+            case 'Darwin':
+                throw new Exception(self::getOS().' not supported.');
             default:
                 throw new Exception(self::getOS().' not supported.');
         }
@@ -331,9 +341,9 @@ class System
      *
      * @throws Exception
      */
-    public static function getDiskTotal(): int
+    public static function getDiskTotal(string $directory = __DIR__): int
     {
-        $totalSpace = disk_total_space(__DIR__);
+        $totalSpace = disk_total_space($directory);
 
         if ($totalSpace === false) {
             throw new Exception('Unable to get disk space');
@@ -349,9 +359,9 @@ class System
      *
      * @throws Exception
      */
-    public static function getDiskFree(): int
+    public static function getDiskFree(string $directory = __DIR__): int
     {
-        $totalSpace = disk_free_space(__DIR__);
+        $totalSpace = disk_free_space($directory);
 
         if ($totalSpace === false) {
             throw new Exception('Unable to get free disk space');

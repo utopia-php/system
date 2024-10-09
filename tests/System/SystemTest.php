@@ -93,6 +93,16 @@ class SystemTest extends TestCase
         }
     }
 
+    public function testGetMemoryAvailable(): void
+    {
+        if (System::getOS() === 'Linux') {
+            $this->assertIsInt(System::getMemoryAvailable());
+        } else {
+            $this->expectException('Exception');
+            System::getMemoryFree();
+        }
+    }
+
     public function testGetIOUsage(): void
     {
         if (System::getOS() === 'Linux') {
