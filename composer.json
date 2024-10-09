@@ -32,10 +32,5 @@
         "phpunit/phpunit": "9.6.*",
         "laravel/pint": "1.13.*",
         "phpstan/phpstan": "1.10.*"
-    },
-    "config": {
-        "platform": {
-            "php": "8.0"
-        }
     }
 }
