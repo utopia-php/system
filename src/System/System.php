@@ -534,7 +534,7 @@ class System
      *
      * @return string|null
      */
-    public static function getEnv(string $name, string $default = null): ?string
+    public static function getEnv(string $name, ?string $default = null): ?string
     {
         return getenv($name) ?: $default;
     }
