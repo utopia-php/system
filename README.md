@@ -39,10 +39,10 @@ Utopia Framework requires PHP 8.0 or later. We recommend using the latest PHP ve
 
 ## Supported Methods
 |         | getCPUCores | getCPUUsage | getMemoryTotal | getMemoryFree | getDiskTotal | getDiskFree | getIOUsage | getNetworkUsage |
-|---------|-------------|-------------------|----------------|---------------|--------------|-------------|------------|-----------------|
-| Windows | ✅           |                   |                |               | ✅            | ✅           |            |                 |
-| MacOS   | ✅           |                   | ✅              | ✅             | ✅            | ✅           |            |                 |
-| Linux   | ✅           | ✅                 | ✅              | ✅             | ✅            | ✅           | ✅          | ✅               |
+| ------- | ----------- | ----------- | -------------- | ------------- | ------------ | ----------- | ---------- | --------------- |
+| Windows | ✅           |             |                |               | ✅            | ✅           |            |                 |
+| MacOS   | ✅           |             | ✅              | ✅             | ✅            | ✅           |            |                 |
+| Linux   | ✅           | ✅           | ✅              | ✅             | ✅            | ✅           | ✅          | ✅               |
 
 ## Authors
 
@@ -59,3 +59,5 @@ Utopia Framework requires PHP 8.0 or later. We recommend using the latest PHP ve
 ## Copyright and license
 
 The MIT License (MIT) [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
+
+Test test
