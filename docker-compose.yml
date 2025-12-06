@@ -4,6 +4,7 @@ services:
   tests:
     build:
       context: .
+    image: database-dev:${PLATFORM}
     mem_limit: 512m
     mem_reservation: 128M
     cpus: 0.5
