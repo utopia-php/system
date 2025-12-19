@@ -16,7 +16,7 @@ class System
 
     public const ARMV8 = 'armv8';
 
-    private const RegExX86 = '/(x86*|i386|i686)/';
+    private const RegExX86 = '/(x86*|i386|i686|AMD64)/i';
 
     private const RegexARM64 = '/(arm64|aarch64)/';
 
@@ -140,8 +140,14 @@ class System
                 return count($matches[0]);
             case 'Darwin':
                 return intval(shell_exec('sysctl -n hw.ncpu'));
-            case 'Windows':
-                return intval(shell_exec('wmic cpu get NumberOfCores'));
+            case 'Windows NT':
+                $output = shell_exec('wmic cpu get NumberOfCores');
+                if ($output === null) {
+                    throw new Exception('Unable to get CPU cores on Windows');
+                }
+                // Parse output - wmic returns header line and value(s)
+                preg_match_all('/\d+/', $output, $matches);
+                return !empty($matches[0]) ? intval($matches[0][0]) : 0;
             default:
                 throw new Exception(self::getOS().' not supported.');
         }

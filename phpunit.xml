@@ -27,5 +27,8 @@
         <testsuite name="ARMV8">
             <file>tests/System/SystemTestARMV8.php</file>
         </testsuite>
+        <testsuite name="Windows">
+            <file>tests/System/SystemTestWindows.php</file>
+        </testsuite>
     </testsuites>
 </phpunit>
