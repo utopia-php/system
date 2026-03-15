@@ -530,9 +530,9 @@ class System
     }
 
     /**
-     * Checks if the system is running on an ARM64 architecture.
-     *
-     * @return string|null
+     * @template TDefault of string|null
+     * @param TDefault $default
+     * @return ($default is null ? string|null : string)
      */
     public static function getEnv(string $name, ?string $default = null): ?string
     {
