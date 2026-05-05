@@ -185,7 +185,8 @@ class System
             case 'Darwin':
                 return (float) intval(shell_exec('sysctl -n hw.ncpu'));
             case 'Windows':
-                return (float) intval(shell_exec('wmic cpu get NumberOfCores'));
+                $output = (string) shell_exec('wmic cpu get NumberOfCores');
+                return preg_match('/\d+/', $output, $m) ? (float) $m[0] : 0.0;
             default:
                 throw new Exception(self::getOS().' not supported.');
         }
