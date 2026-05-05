@@ -125,6 +125,9 @@ class System
      * @return int
      *
      * @throws Exception
+     *
+     * @deprecated Use {@see self::getCPU()} instead, which returns a float and
+     *             honours cgroup CPU limits inside Docker/Kubernetes containers.
      */
     public static function getCPUCores(): int
     {
@@ -145,6 +148,124 @@ class System
             default:
                 throw new Exception(self::getOS().' not supported.');
         }
+    }
+
+    /**
+     * Gets the amount of CPU available to the current process as a float.
+     *
+     * On Linux, this respects cgroup v2 (`/sys/fs/cgroup/cpu.max`) and cgroup v1
+     * (`cpu.cfs_quota_us` / `cpu.cfs_period_us`) so it returns the effective limit
+     * inside Docker or Kubernetes containers (e.g. `0.5` for a 500m CPU limit).
+     * Also honours cpuset pinning (`--cpuset-cpus`); if both a quota and a cpuset
+     * are set, the smaller of the two is returned. Falls back to the host's
+     * physical core count when no limit is configured.
+     *
+     * @return float
+     *
+     * @throws Exception
+     */
+    public static function getCPU(): float
+    {
+        switch (self::getOS()) {
+            case 'Linux':
+                $cpuInfo = file_get_contents('/proc/cpuinfo');
+                $matches = [[]];
+                if ($cpuInfo) {
+                    preg_match_all('/^processor/m', $cpuInfo, $matches);
+                }
+                $hostCores = (float) count($matches[0]);
+
+                $limits = [
+                    self::getCgroupCPULimit(),
+                    self::getCgroupCpusetCount(),
+                ];
+                $limits = array_filter($limits, fn ($v) => $v !== null);
+
+                return empty($limits) ? $hostCores : min($limits);
+            case 'Darwin':
+                return (float) intval(shell_exec('sysctl -n hw.ncpu'));
+            case 'Windows':
+                return (float) intval(shell_exec('wmic cpu get NumberOfCores'));
+            default:
+                throw new Exception(self::getOS().' not supported.');
+        }
+    }
+
+    /**
+     * Reads the cgroup CPU quota for the current process, supporting both
+     * cgroup v2 and v1. Returns null when no limit is set or the files are
+     * not readable.
+     *
+     * @return float|null
+     */
+    private static function getCgroupCPULimit(): ?float
+    {
+        $v2 = '/sys/fs/cgroup/cpu.max';
+        if (is_readable($v2)) {
+            $contents = trim((string) @file_get_contents($v2));
+            if ($contents !== '') {
+                $parts = preg_split('/\s+/', $contents);
+                if ($parts !== false && count($parts) >= 2) {
+                    [$quota, $period] = $parts;
+                    if ($quota !== 'max' && is_numeric($quota) && is_numeric($period) && (float) $period > 0) {
+                        return (float) $quota / (float) $period;
+                    }
+                }
+            }
+        }
+
+        $quotaFile = '/sys/fs/cgroup/cpu/cpu.cfs_quota_us';
+        $periodFile = '/sys/fs/cgroup/cpu/cpu.cfs_period_us';
+        if (is_readable($quotaFile) && is_readable($periodFile)) {
+            $quota = trim((string) @file_get_contents($quotaFile));
+            $period = trim((string) @file_get_contents($periodFile));
+            if (is_numeric($quota) && is_numeric($period) && (float) $quota > 0 && (float) $period > 0) {
+                return (float) $quota / (float) $period;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Counts the CPUs allowed by the current process's cpuset cgroup
+     * (e.g. `docker run --cpuset-cpus=0-1,3`). Supports cgroup v2 and v1.
+     * Returns null when no cpuset is configured or the files are not readable.
+     *
+     * @return float|null
+     */
+    private static function getCgroupCpusetCount(): ?float
+    {
+        foreach (['/sys/fs/cgroup/cpuset.cpus.effective', '/sys/fs/cgroup/cpuset/cpuset.cpus'] as $file) {
+            if (! is_readable($file)) {
+                continue;
+            }
+            $contents = trim((string) @file_get_contents($file));
+            if ($contents === '') {
+                continue;
+            }
+
+            $count = 0;
+            foreach (explode(',', $contents) as $range) {
+                if ($range === '') {
+                    continue;
+                }
+                if (str_contains($range, '-')) {
+                    [$start, $end] = explode('-', $range, 2);
+                    if (is_numeric($start) && is_numeric($end)) {
+                        $count += ((int) $end - (int) $start) + 1;
+                    }
+                } elseif (is_numeric($range)) {
+                    $count += 1;
+                }
+            }
+
+            if ($count > 0) {
+                return (float) $count;
+            }
+        }
+
+        return null;
     }
 
     /**
