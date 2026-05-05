@@ -253,27 +253,48 @@ class System
                 continue;
             }
 
-            $count = 0;
-            foreach (explode(',', $contents) as $range) {
-                if ($range === '') {
-                    continue;
-                }
-                if (str_contains($range, '-')) {
-                    [$start, $end] = explode('-', $range, 2);
-                    if (is_numeric($start) && is_numeric($end)) {
-                        $count += ((int) $end - (int) $start) + 1;
-                    }
-                } elseif (is_numeric($range)) {
-                    $count += 1;
+            $count = self::countCpuList($contents);
+            if ($count <= 0) {
+                continue;
+            }
+
+            // If the cpuset matches every online CPU, no user-visible restriction
+            // is in effect (cgroup v2 always exposes the full set). Treat as null.
+            $online = @file_get_contents('/sys/devices/system/cpu/online');
+            if ($online !== false) {
+                $onlineCount = self::countCpuList(trim($online));
+                if ($onlineCount > 0 && $count >= $onlineCount) {
+                    return null;
                 }
             }
 
-            if ($count > 0) {
-                return (float) $count;
-            }
+            return (float) $count;
         }
 
         return null;
+    }
+
+    /**
+     * Counts CPUs in a Linux cpu list string like "0-3,5,7-8".
+     */
+    private static function countCpuList(string $list): int
+    {
+        $count = 0;
+        foreach (explode(',', $list) as $range) {
+            if ($range === '') {
+                continue;
+            }
+            if (str_contains($range, '-')) {
+                [$start, $end] = explode('-', $range, 2);
+                if (is_numeric($start) && is_numeric($end)) {
+                    $count += ((int) $end - (int) $start) + 1;
+                }
+            } elseif (is_numeric($range)) {
+                $count += 1;
+            }
+        }
+
+        return $count;
     }
 
     /**
