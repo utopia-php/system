@@ -191,13 +191,13 @@ class System
                 return (float) $hostCores;
             case 'Darwin':
                 $output = shell_exec('sysctl -n hw.ncpu');
-                if ($output === null || ! preg_match('/\d+/', $output, $m) || (int) $m[0] <= 0) {
+                if (! is_string($output) || ! preg_match('/\d+/', $output, $m) || (int) $m[0] <= 0) {
                     throw new Exception('Unable to determine CPU count via sysctl.');
                 }
                 return (float) $m[0];
             case 'Windows':
                 $output = shell_exec('wmic cpu get NumberOfCores');
-                if ($output === null || ! preg_match('/\d+/', $output, $m) || (int) $m[0] <= 0) {
+                if (! is_string($output) || ! preg_match('/\d+/', $output, $m) || (int) $m[0] <= 0) {
                     throw new Exception('Unable to determine CPU count via wmic.');
                 }
                 return (float) $m[0];
