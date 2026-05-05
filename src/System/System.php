@@ -168,20 +168,27 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                $cpuInfo = file_get_contents('/proc/cpuinfo');
-                $matches = [[]];
-                if ($cpuInfo) {
-                    preg_match_all('/^processor/m', $cpuInfo, $matches);
-                }
-                $hostCores = (float) count($matches[0]);
-
                 $limits = [
                     self::getCgroupCPULimit(),
                     self::getCgroupCpusetCount(),
                 ];
                 $limits = array_filter($limits, fn ($v) => $v !== null);
 
-                return empty($limits) ? $hostCores : min($limits);
+                if (! empty($limits)) {
+                    return min($limits);
+                }
+
+                $cpuInfo = file_get_contents('/proc/cpuinfo');
+                if ($cpuInfo === false) {
+                    throw new Exception('Unable to determine CPU count: /proc/cpuinfo is not readable and no cgroup limits are configured.');
+                }
+                preg_match_all('/^processor/m', $cpuInfo, $matches);
+                $hostCores = count($matches[0]);
+                if ($hostCores === 0) {
+                    throw new Exception('Unable to determine CPU count: /proc/cpuinfo contained no processor entries.');
+                }
+
+                return (float) $hostCores;
             case 'Darwin':
                 return (float) intval(shell_exec('sysctl -n hw.ncpu'));
             case 'Windows':
