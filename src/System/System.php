@@ -297,7 +297,7 @@ class System
             }
             if (str_contains($range, '-')) {
                 [$start, $end] = explode('-', $range, 2);
-                if (is_numeric($start) && is_numeric($end)) {
+                if (is_numeric($start) && is_numeric($end) && (int) $start <= (int) $end) {
                     $count += ((int) $end - (int) $start) + 1;
                 }
             } elseif (is_numeric($range)) {
