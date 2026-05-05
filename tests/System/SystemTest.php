@@ -52,6 +52,13 @@ class SystemTest extends TestCase
         $this->assertIsInt(System::getCPUCores());
     }
 
+    public function testGetCPU(): void
+    {
+        $cpu = System::getCPU();
+        $this->assertIsFloat($cpu);
+        $this->assertGreaterThan(0, $cpu);
+    }
+
     public function testGetDiskTotal(): void
     {
         $this->assertIsInt(System::getDiskTotal());
