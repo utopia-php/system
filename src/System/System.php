@@ -197,10 +197,14 @@ class System
                 return (float) $m[0];
             case 'Windows':
                 $output = shell_exec('wmic cpu get NumberOfCores');
-                if (! is_string($output) || ! preg_match('/\d+/', $output, $m) || (int) $m[0] <= 0) {
+                if (! is_string($output) || ! preg_match_all('/\d+/', $output, $m)) {
                     throw new Exception('Unable to determine CPU count via wmic.');
                 }
-                return (float) $m[0];
+                $total = array_sum(array_map('intval', $m[0]));
+                if ($total <= 0) {
+                    throw new Exception('Unable to determine CPU count via wmic.');
+                }
+                return (float) $total;
             default:
                 throw new Exception(self::getOS().' not supported.');
         }
