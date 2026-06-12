@@ -140,13 +140,13 @@ class System
                     preg_match_all('/^processor/m', $cpuInfo, $matches);
                 }
 
-                return count($matches[0]);
+                return \count($matches[0]);
             case 'Darwin':
-                return intval(shell_exec('sysctl -n hw.ncpu'));
+                return \intval(shell_exec('sysctl -n hw.ncpu'));
             case 'Windows':
-                return intval(shell_exec('wmic cpu get NumberOfCores'));
+                return \intval(shell_exec('wmic cpu get NumberOfCores'));
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . ' not supported.');
         }
     }
 
@@ -172,7 +172,7 @@ class System
                     self::getCgroupCPULimit(),
                     self::getCgroupCpusetCount(),
                 ];
-                $limits = array_filter($limits, fn ($v) => $v !== null);
+                $limits = array_filter($limits, fn($v) => $v !== null);
 
                 if (! empty($limits)) {
                     return min($limits);
@@ -183,7 +183,7 @@ class System
                     throw new Exception('Unable to determine CPU count: /proc/cpuinfo is not readable and no cgroup limits are configured.');
                 }
                 preg_match_all('/^processor/m', $cpuInfo, $matches);
-                $hostCores = count($matches[0]);
+                $hostCores = \count($matches[0]);
                 if ($hostCores === 0) {
                     throw new Exception('Unable to determine CPU count: /proc/cpuinfo contained no processor entries.');
                 }
@@ -191,13 +191,13 @@ class System
                 return (float) $hostCores;
             case 'Darwin':
                 $output = shell_exec('sysctl -n hw.ncpu');
-                if (! is_string($output) || ! preg_match('/\d+/', $output, $m) || (int) $m[0] <= 0) {
+                if (! \is_string($output) || ! preg_match('/\d+/', $output, $m) || (int) $m[0] <= 0) {
                     throw new Exception('Unable to determine CPU count via sysctl.');
                 }
                 return (float) $m[0];
             case 'Windows':
                 $output = shell_exec('wmic cpu get NumberOfCores');
-                if (! is_string($output) || ! preg_match_all('/\d+/', $output, $m)) {
+                if (! \is_string($output) || ! preg_match_all('/\d+/', $output, $m)) {
                     throw new Exception('Unable to determine CPU count via wmic.');
                 }
                 $total = array_sum(array_map('intval', $m[0]));
@@ -206,7 +206,7 @@ class System
                 }
                 return (float) $total;
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . ' not supported.');
         }
     }
 
@@ -224,7 +224,7 @@ class System
             $contents = trim((string) @file_get_contents($v2));
             if ($contents !== '') {
                 $parts = preg_split('/\s+/', $contents);
-                if ($parts !== false && count($parts) >= 2) {
+                if ($parts !== false && \count($parts) >= 2) {
                     [$quota, $period] = $parts;
                     if ($quota !== 'max' && is_numeric($quota) && is_numeric($period) && (float) $period > 0) {
                         return (float) $quota / (float) $period;
@@ -329,7 +329,7 @@ class System
 
         // Remove non-CPU lines
         $cpus = array_filter($cpus, function (string $cpu): bool {
-            return (bool)preg_match('/^cpu[0-999]/', $cpu);
+            return (bool) preg_match('/^cpu[0-999]/', $cpu);
         });
 
         foreach ($cpus as $cpu) {
@@ -371,15 +371,15 @@ class System
             ];
 
             foreach ($data as $cpu) {
-                $data['total']['user'] += intval($cpu['user']);
-                $data['total']['nice'] += intval($cpu['nice']);
-                $data['total']['system'] += intval($cpu['system']);
-                $data['total']['idle'] += intval($cpu['idle']);
-                $data['total']['iowait'] += intval($cpu['iowait']);
-                $data['total']['irq'] += intval($cpu['irq']);
-                $data['total']['softirq'] += intval($cpu['softirq']);
-                $data['total']['steal'] += intval($cpu['steal']);
-                $data['total']['guest'] += intval($cpu['guest']);
+                $data['total']['user'] += \intval($cpu['user']);
+                $data['total']['nice'] += \intval($cpu['nice']);
+                $data['total']['system'] += \intval($cpu['system']);
+                $data['total']['idle'] += \intval($cpu['idle']);
+                $data['total']['iowait'] += \intval($cpu['iowait']);
+                $data['total']['irq'] += \intval($cpu['irq']);
+                $data['total']['softirq'] += \intval($cpu['softirq']);
+                $data['total']['steal'] += \intval($cpu['steal']);
+                $data['total']['guest'] += \intval($cpu['guest']);
             }
         }
 
@@ -400,7 +400,7 @@ class System
         switch (self::getOS()) {
             case 'Linux':
                 $startCpu = self::getProcStatData()['total'];
-                \sleep($duration);
+                sleep($duration);
                 $endCpu = self::getProcStatData()['total'];
 
                 $prevIdle = $startCpu['idle'] + $startCpu['iowait'];
@@ -419,7 +419,7 @@ class System
 
                 return $percentage * 100;
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . ' not supported.');
         }
     }
 
@@ -430,12 +430,12 @@ class System
             throw new Exception('Unable to read /proc/meminfo');
         }
 
-        preg_match(sprintf('/%s:\s+(\d+)/', $field), $memInfo, $matches);
+        preg_match(\sprintf('/%s:\s+(\d+)/', $field), $memInfo, $matches);
         if (isset($matches[1])) {
-            return intval(intval($matches[1]) / 1024);
-        } else {
-            throw new Exception("Unable to find {$field} in /proc/meminfo.");
+            return \intval(\intval($matches[1]) / 1024);
         }
+        throw new Exception("Unable to find {$field} in /proc/meminfo.");
+
     }
 
     /**
@@ -449,11 +449,11 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                return self::getProcMemoryInfo("MemTotal");
+                return self::getProcMemoryInfo('MemTotal');
             case 'Darwin':
-                return intval((intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
+                return \intval((\intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . ' not supported.');
         }
     }
 
@@ -468,11 +468,11 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                return self::getProcMemoryInfo("MemFree");
+                return self::getProcMemoryInfo('MemFree');
             case 'Darwin':
-                return intval(intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
+                return \intval(\intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . ' not supported.');
         }
     }
 
@@ -487,11 +487,11 @@ class System
     {
         switch (self::getOS()) {
             case 'Linux':
-                return self::getProcMemoryInfo("MemAvailable");
+                return self::getProcMemoryInfo('MemAvailable');
             case 'Darwin':
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . ' not supported.');
             default:
-                throw new Exception(self::getOS().' not supported.');
+                throw new Exception(self::getOS() . ' not supported.');
         }
     }
 
@@ -510,7 +510,7 @@ class System
             throw new Exception('Unable to get disk space');
         }
 
-        return intval($totalSpace / 1024 / 1024);
+        return \intval($totalSpace / 1024 / 1024);
     }
 
     /**
@@ -528,7 +528,7 @@ class System
             throw new Exception('Unable to get free disk space');
         }
 
-        return intval($totalSpace / 1024 / 1024);
+        return \intval($totalSpace / 1024 / 1024);
     }
 
     /**
@@ -539,7 +539,7 @@ class System
     private static function getDiskStats(): array
     {
         // Read /proc/diskstats
-        $diskStats = file_get_contents('/proc/diskstats');
+        $diskStats = @file_get_contents('/proc/diskstats');
 
         if (!$diskStats) {
             throw new Exception('Unable to read /proc/diskstats');
@@ -625,12 +625,12 @@ class System
             /**
              * @phpstan-ignore-next-line
              */
-            $stats[$key]['read'] = (((intval($read2) - intval($read1)) * 512) / 1048576);
+            $stats[$key]['read'] = (((\intval($read2) - \intval($read1)) * 512) / 1048576);
 
             /**
              * @phpstan-ignore-next-line
              */
-            $stats[$key]['write'] = (((intval($write2) - intval($write1)) * 512) / 1048576);
+            $stats[$key]['write'] = (((\intval($write2) - \intval($write1)) * 512) / 1048576);
         }
 
         $stats['total']['read'] = array_sum(array_column($stats, 'read'));
@@ -653,7 +653,7 @@ class System
     public static function getNetworkUsage(int $duration = 1): array
     {
         // Create a list of interfaces
-        $interfaces = scandir('/sys/class/net', SCANDIR_SORT_NONE);
+        $interfaces = @scandir('/sys/class/net', SCANDIR_SORT_NONE);
 
         if (!$interfaces) {
             throw new Exception('Unable to read /sys/class/net');
@@ -674,11 +674,11 @@ class System
         $IOUsage = [];
 
         foreach ($interfaces as $interface) {
-            $tx1 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/tx_bytes'));
-            $rx1 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/rx_bytes'));
+            $tx1 = \intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
+            $rx1 = \intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
             sleep($duration);
-            $tx2 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/tx_bytes'));
-            $rx2 = intval(file_get_contents('/sys/class/net/'.$interface.'/statistics/rx_bytes'));
+            $tx2 = \intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/tx_bytes'));
+            $rx2 = \intval(file_get_contents('/sys/class/net/' . $interface . '/statistics/rx_bytes'));
 
             $IOUsage[$interface]['download'] = round(($rx2 - $rx1) / 1048576, 2);
             $IOUsage[$interface]['upload'] = round(($tx2 - $tx1) / 1048576, 2);

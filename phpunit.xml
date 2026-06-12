@@ -1,31 +1,23 @@
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
-        >
+         cacheDirectory=".phpunit.cache"
+         failOnWarning="true"
+         failOnNotice="true">
     <testsuites>
-        <testsuite name="General">
-            <file>tests/System/SystemTest.php</file>
-        </testsuite>
-        <testsuite name="X86">
-            <file>tests/System/SystemTestX86.php</file>
-        </testsuite>
-        <testsuite name="PPC">
-            <file>tests/System/SystemTestPPC.php</file>
-        </testsuite>
-        <testsuite name="ARM64">
-            <file>tests/System/SystemTestARM64.php</file>
-        </testsuite>
-        <testsuite name="ARMV7">
-            <file>tests/System/SystemTestARMV7.php</file>
-        </testsuite>
-        <testsuite name="ARMV8">
-            <file>tests/System/SystemTestARMV8.php</file>
+        <testsuite name="unit">
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+    <php>
+        <env name="TESTA" value="VALUEA"/>
+        <env name="TESTB" value="VALUEB"/>
+    </php>
 </phpunit>

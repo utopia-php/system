@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Utopia PHP Framework
  *
@@ -19,13 +20,9 @@ use Utopia\System\System;
 
 class SystemTest extends TestCase
 {
-    public function setUp(): void
-    {
-    }
+    public function setUp(): void {}
 
-    public function tearDown(): void
-    {
-    }
+    public function tearDown(): void {}
 
     public function testOs(): void
     {
@@ -45,6 +42,21 @@ class SystemTest extends TestCase
         $this->assertIsBool(System::isArch(System::PPC));
         $this->expectException('Exception');
         System::isArch('throw');
+    }
+
+    public function testArchConsistency(): void
+    {
+        $arch = System::getArchEnum();
+        $checks = [
+            System::X86 => System::isX86(),
+            System::PPC => System::isPPC(),
+            System::ARM64 => System::isArm64(),
+            System::ARMV7 => System::isArmV7(),
+            System::ARMV8 => System::isArmV8(),
+        ];
+
+        $this->assertSame([$arch], array_keys(array_filter($checks)));
+        $this->assertTrue(System::isArch($arch));
     }
 
     public function testGetCPUCores(): void
@@ -82,7 +94,7 @@ class SystemTest extends TestCase
 
     public function testGetMemoryTotal(): void
     {
-        if (System::getOS() === 'Linux') {
+        if (\in_array(System::getOS(), ['Linux', 'Darwin'])) {
             $this->assertIsInt(System::getMemoryTotal());
         } else {
             $this->expectException('Exception');
@@ -92,7 +104,7 @@ class SystemTest extends TestCase
 
     public function testGetMemoryFree(): void
     {
-        if (System::getOS() === 'Linux') {
+        if (\in_array(System::getOS(), ['Linux', 'Darwin'])) {
             $this->assertIsInt(System::getMemoryFree());
         } else {
             $this->expectException('Exception');
@@ -106,7 +118,7 @@ class SystemTest extends TestCase
             $this->assertIsInt(System::getMemoryAvailable());
         } else {
             $this->expectException('Exception');
-            System::getMemoryFree();
+            System::getMemoryAvailable();
         }
     }
 

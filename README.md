@@ -1,5 +1,8 @@
 # Utopia System
 
+> [!IMPORTANT]
+> This repository is a read-only mirror of the [utopia-php monorepo](https://github.com/utopia-php/monorepo). Development happens in [`packages/system`](https://github.com/utopia-php/monorepo/tree/main/packages/system) — please open issues and pull requests there.
+
 [![Build Status](https://travis-ci.com/utopia-php/system.svg?branch=main)](https://travis-ci.com/utopia-php/system)
 ![Total Downloads](https://img.shields.io/packagist/dt/utopia-php/system.svg)
 [![Discord](https://img.shields.io/discord/564160730845151244?label=discord)](https://appwrite.io/discord)

@@ -2,7 +2,13 @@
     "name": "utopia-php/system",
     "description": "A simple library for obtaining information about the host's system.",
     "type": "library",
-    "keywords": ["php","framework", "upf", "utopia", "system"],
+    "keywords": [
+        "php",
+        "framework",
+        "upf",
+        "utopia",
+        "system"
+    ],
     "license": "MIT",
     "minimum-stability": "stable",
     "authors": [
@@ -21,16 +27,9 @@
         }
     },
     "scripts": {
-        "lint": "./vendor/bin/pint --test",
-        "format": "./vendor/bin/pint",
-        "check": "./vendor/bin/phpstan analyse --level=max --memory-limit=1G src tests"
+        "test": "phpunit"
     },
     "require": {
         "php": ">=8.0.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "9.6.*",
-        "laravel/pint": "1.13.*",
-        "phpstan/phpstan": "1.12.*"
     }
 }
