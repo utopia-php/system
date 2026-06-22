@@ -26,20 +26,10 @@ class SystemTest extends TestCase
 
     public function testOs(): void
     {
-        $this->assertIsString(System::getOS());
-        $this->assertIsString(System::getArch());
-        $this->assertIsString(System::getArchEnum());
-        $this->assertIsString(System::getHostname());
-        $this->assertIsBool(System::isArm64());
-        $this->assertIsBool(System::isArmV7());
-        $this->assertIsBool(System::isArmV8());
-        $this->assertIsBool(System::isPPC());
-        $this->assertIsBool(System::isX86());
-        $this->assertIsBool(System::isArch(System::ARM64));
-        $this->assertIsBool(System::isArch(System::ARMV7));
-        $this->assertIsBool(System::isArch(System::ARMV8));
-        $this->assertIsBool(System::isArch(System::X86));
-        $this->assertIsBool(System::isArch(System::PPC));
+        $this->assertNotEmpty(System::getOS());
+        $this->assertNotEmpty(System::getArch());
+        $this->assertNotEmpty(System::getArchEnum());
+        $this->assertNotEmpty(System::getHostname());
         $this->expectException('Exception');
         System::isArch('throw');
     }
@@ -61,31 +51,29 @@ class SystemTest extends TestCase
 
     public function testGetCPUCores(): void
     {
-        $this->assertIsInt(System::getCPUCores());
+        $this->assertGreaterThan(0, System::getCPUCores());
     }
 
     public function testGetCPU(): void
     {
-        $cpu = System::getCPU();
-        $this->assertIsFloat($cpu);
-        $this->assertGreaterThan(0, $cpu);
+        $this->assertGreaterThan(0, System::getCPU());
     }
 
     public function testGetDiskTotal(): void
     {
-        $this->assertIsInt(System::getDiskTotal());
+        $this->assertGreaterThan(0, System::getDiskTotal());
     }
 
     public function testGetDiskFree(): void
     {
-        $this->assertIsInt(System::getDiskFree());
+        $this->assertGreaterThanOrEqual(0, System::getDiskFree());
     }
 
     // Methods only implemented for Linux
     public function testGetCPUUsage(): void
     {
         if (System::getOS() === 'Linux') {
-            $this->assertIsNumeric(System::getCPUUsage(5));
+            $this->assertGreaterThanOrEqual(0, System::getCPUUsage(5));
         } else {
             $this->expectException('Exception');
             System::getCPUUsage(5);
@@ -95,7 +83,7 @@ class SystemTest extends TestCase
     public function testGetMemoryTotal(): void
     {
         if (\in_array(System::getOS(), ['Linux', 'Darwin'])) {
-            $this->assertIsInt(System::getMemoryTotal());
+            $this->assertGreaterThan(0, System::getMemoryTotal());
         } else {
             $this->expectException('Exception');
             System::getMemoryTotal();
@@ -105,7 +93,7 @@ class SystemTest extends TestCase
     public function testGetMemoryFree(): void
     {
         if (\in_array(System::getOS(), ['Linux', 'Darwin'])) {
-            $this->assertIsInt(System::getMemoryFree());
+            $this->assertGreaterThanOrEqual(0, System::getMemoryFree());
         } else {
             $this->expectException('Exception');
             System::getMemoryFree();
@@ -115,7 +103,7 @@ class SystemTest extends TestCase
     public function testGetMemoryAvailable(): void
     {
         if (System::getOS() === 'Linux') {
-            $this->assertIsInt(System::getMemoryAvailable());
+            $this->assertGreaterThanOrEqual(0, System::getMemoryAvailable());
         } else {
             $this->expectException('Exception');
             System::getMemoryAvailable();
@@ -125,7 +113,7 @@ class SystemTest extends TestCase
     public function testGetIOUsage(): void
     {
         if (System::getOS() === 'Linux') {
-            $this->assertIsArray(System::getIOUsage());
+            $this->assertArrayHasKey('total', System::getIOUsage());
         } else {
             $this->expectException('Exception');
             System::getIOUsage();
@@ -135,7 +123,7 @@ class SystemTest extends TestCase
     public function testGetNetworkUsage(): void
     {
         if (System::getOS() === 'Linux') {
-            $this->assertIsArray(System::getNetworkUsage());
+            $this->assertArrayHasKey('total', System::getNetworkUsage());
         } else {
             $this->expectException('Exception');
             System::getNetworkUsage();

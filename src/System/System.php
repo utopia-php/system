@@ -622,14 +622,8 @@ class System
             $write2 = $diskStat2[$key][9];
             $write1 = $disk[9];
 
-            /**
-             * @phpstan-ignore-next-line
-             */
             $stats[$key]['read'] = (((\intval($read2) - \intval($read1)) * 512) / 1048576);
 
-            /**
-             * @phpstan-ignore-next-line
-             */
             $stats[$key]['write'] = (((\intval($write2) - \intval($write1)) * 512) / 1048576);
         }
 
