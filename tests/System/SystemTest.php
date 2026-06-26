@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Utopia PHP Framework
  *
@@ -18,7 +20,7 @@ namespace Utopia\Tests;
 use PHPUnit\Framework\TestCase;
 use Utopia\System\System;
 
-class SystemTest extends TestCase
+final class SystemTest extends TestCase
 {
     public function setUp(): void {}
 
@@ -132,9 +134,9 @@ class SystemTest extends TestCase
 
     public function testGetEnv(): void
     {
-        $this->assertEquals(System::getEnv('TESTA', 'DEFAULTA'), 'VALUEA');
-        $this->assertEquals(System::getEnv('TESTB', 'DEFAULTB'), 'VALUEB');
-        $this->assertEquals(System::getEnv('TESTC', 'DEFAULTC'), 'DEFAULTC');
-        $this->assertEquals(System::getEnv('TESTC'), null);
+        $this->assertSame('VALUEA', System::getEnv('TESTA', 'DEFAULTA'));
+        $this->assertSame('VALUEB', System::getEnv('TESTB', 'DEFAULTB'));
+        $this->assertSame('DEFAULTC', System::getEnv('TESTC', 'DEFAULTC'));
+        $this->assertEquals(null, System::getEnv('TESTC'));
     }
 }

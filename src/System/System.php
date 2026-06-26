@@ -71,8 +71,6 @@ class System
 
     /**
      * Returns the system's OS.
-     *
-     * @return string
      */
     public static function getOS(): string
     {
@@ -81,8 +79,6 @@ class System
 
     /**
      * Returns the architecture of the system's processor.
-     *
-     * @return string
      */
     public static function getArch(): string
     {
@@ -92,7 +88,6 @@ class System
     /**
      * Returns the architecture's Enum of the system's processor.
      *
-     * @return string
      *
      * @throws Exception
      */
@@ -111,8 +106,6 @@ class System
 
     /**
      * Returns the system's hostname.
-     *
-     * @return string
      */
     public static function getHostname(): string
     {
@@ -122,10 +115,8 @@ class System
     /**
      * Gets the system's total amount of CPU cores.
      *
-     * @return int
      *
      * @throws Exception
-     *
      * @deprecated Use {@see self::getCPU()} instead, which returns a float and
      *             honours cgroup CPU limits inside Docker/Kubernetes containers.
      */
@@ -160,7 +151,6 @@ class System
      * are set, the smaller of the two is returned. Falls back to the host's
      * physical core count when no limit is configured.
      *
-     * @return float
      *
      * @throws Exception
      */
@@ -172,9 +162,9 @@ class System
                     self::getCgroupCPULimit(),
                     self::getCgroupCpusetCount(),
                 ];
-                $limits = array_filter($limits, fn($v) => $v !== null);
+                $limits = array_filter($limits, fn(?float $v): bool => $v !== null);
 
-                if (! empty($limits)) {
+                if ($limits !== []) {
                     return min($limits);
                 }
 
@@ -214,8 +204,6 @@ class System
      * Reads the cgroup CPU quota for the current process, supporting both
      * cgroup v2 and v1. Returns null when no limit is set or the files are
      * not readable.
-     *
-     * @return float|null
      */
     private static function getCgroupCPULimit(): ?float
     {
@@ -250,8 +238,6 @@ class System
      * Counts the CPUs allowed by the current process's cpuset cgroup
      * (e.g. `docker run --cpuset-cpus=0-1,3`). Supports cgroup v2 and v1.
      * Returns null when no cpuset is configured or the files are not readable.
-     *
-     * @return float|null
      */
     private static function getCgroupCpusetCount(): ?float
     {
@@ -328,9 +314,7 @@ class System
         $cpus = explode("\n", $cpustats);
 
         // Remove non-CPU lines
-        $cpus = array_filter($cpus, function (string $cpu): bool {
-            return (bool) preg_match('/^cpu[0-999]/', $cpu);
-        });
+        $cpus = array_filter($cpus, fn(string $cpu): bool => (bool) preg_match('/^cpu[0-999]/', $cpu));
 
         foreach ($cpus as $cpu) {
             $cpu = explode(' ', $cpu);
@@ -390,8 +374,6 @@ class System
      * Get percentage CPU usage (between 0 and 100)
      * Reference for formula: https://stackoverflow.com/a/23376195/17300412
      *
-     * @param  int  $duration
-     * @return float
      *
      * @throws Exception
      */
@@ -441,45 +423,36 @@ class System
     /**
      * Returns the total amount of RAM available on the system as Megabytes.
      *
-     * @return int
      *
      * @throws Exception
      */
     public static function getMemoryTotal(): int
     {
-        switch (self::getOS()) {
-            case 'Linux':
-                return self::getProcMemoryInfo('MemTotal');
-            case 'Darwin':
-                return \intval((\intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024);
-            default:
-                throw new Exception(self::getOS() . ' not supported.');
-        }
+        return match (self::getOS()) {
+            'Linux' => self::getProcMemoryInfo('MemTotal'),
+            'Darwin' => \intval((\intval(shell_exec('sysctl -n hw.memsize'))) / 1024 / 1024),
+            default => throw new Exception(self::getOS() . ' not supported.'),
+        };
     }
 
     /**
      * Returns the total amount of Free RAM available on the system as Megabytes.
      *
-     * @return int
      *
      * @throws Exception
      */
     public static function getMemoryFree(): int
     {
-        switch (self::getOS()) {
-            case 'Linux':
-                return self::getProcMemoryInfo('MemFree');
-            case 'Darwin':
-                return \intval(\intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024);
-            default:
-                throw new Exception(self::getOS() . ' not supported.');
-        }
+        return match (self::getOS()) {
+            'Linux' => self::getProcMemoryInfo('MemFree'),
+            'Darwin' => \intval(\intval(shell_exec('sysctl -n vm.page_free_count')) / 1024 / 1024),
+            default => throw new Exception(self::getOS() . ' not supported.'),
+        };
     }
 
     /**
      * Returns the total amount of Available RAM on the system as Megabytes.
      *
-     * @return int
      *
      * @throws Exception
      */
@@ -498,7 +471,6 @@ class System
     /**
      * Returns the total amount of Disk space on the system as Megabytes.
      *
-     * @return int
      *
      * @throws Exception
      */
@@ -516,7 +488,6 @@ class System
     /**
      * Returns the total amount of Disk space free on the system as Megabytes.
      *
-     * @return int
      *
      * @throws Exception
      */
@@ -549,14 +520,10 @@ class System
         $diskStats = explode("\n", $diskStats);
 
         // Remove excess spaces
-        $diskStats = array_map(function ($data) {
-            return preg_replace('/\t+/', ' ', trim($data));
-        }, $diskStats);
+        $diskStats = array_map(fn($data): ?string => preg_replace('/\t+/', ' ', trim($data)), $diskStats);
 
         // Remove empty lines
-        $diskStats = array_filter($diskStats, function ($data) {
-            return ! empty($data);
-        });
+        $diskStats = array_filter($diskStats, fn($data): bool => ! empty($data));
 
         $data = [];
         foreach ($diskStats as $disk) {
@@ -574,9 +541,7 @@ class System
      * the current read and write usage in Megabytes.
      * There is also a ['total'] key that contains the total amount of read and write usage.
      *
-     * @param  int  $duration
      * @return array<string, array<string, mixed>>
-     *
      * @throws Exception
      */
     public static function getIOUsage(int $duration = 1): array
@@ -585,7 +550,7 @@ class System
         sleep($duration);
         $diskStat2 = self::getDiskStats();
 
-        $diskStat = array_filter($diskStat, function (array $disk) {
+        $diskStat = array_filter($diskStat, function (array $disk): bool {
             foreach (self::INVALID_DISKS as $filter) {
                 if (!isset($disk[2]) || !\is_string($disk[2])) {
                     return false;
@@ -598,7 +563,7 @@ class System
             return true;
         });
 
-        $diskStat2 = array_filter($diskStat2, function ($disk) {
+        $diskStat2 = array_filter($diskStat2, function (array $disk): bool {
             foreach (self::INVALID_DISKS as $filter) {
                 if (!isset($disk[2]) || !\is_string($disk[2])) {
                     return false;
@@ -654,7 +619,7 @@ class System
         }
 
         // Remove all unwanted interfaces
-        $interfaces = array_filter($interfaces, function ($interface) {
+        $interfaces = array_filter($interfaces, function ($interface): bool {
             foreach (self::INVALIDNETINTERFACES as $filter) {
                 if (str_contains($interface, $filter)) {
                     return false;
@@ -696,8 +661,6 @@ class System
 
     /**
      * Checks if the system is running on an ARM64 architecture.
-     *
-     * @return bool
      */
     public static function isArm64(): bool
     {
@@ -706,8 +669,6 @@ class System
 
     /**
      * Checks if the system is running on an ARMV7 architecture.
-     *
-     * @return bool
      */
     public static function isArmV7(): bool
     {
@@ -716,8 +677,6 @@ class System
 
     /**
      * Checks if the system is running on an ARM64 architecture.
-     *
-     * @return bool
      */
     public static function isArmV8(): bool
     {
@@ -726,8 +685,6 @@ class System
 
     /**
      * Checks if the system is running on an X86 architecture.
-     *
-     * @return bool
      */
     public static function isX86(): bool
     {
@@ -736,8 +693,6 @@ class System
 
     /**
      * Checks if the system is running on an PowerPC architecture.
-     *
-     * @return bool
      */
     public static function isPPC(): bool
     {
@@ -748,8 +703,6 @@ class System
      * Checks if the system is the passed architecture.
      * You should pass `System::X86`, `System::PPC`, `System::ARM` or an equivalent string.
      *
-     * @param  string  $arch
-     * @return bool
      *
      * @throws Exception
      */
