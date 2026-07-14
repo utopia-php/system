@@ -11,9 +11,9 @@ Utopia System library is a simple and lite library to obtain information about t
 
 Although this library is part of the [Utopia Framework](https://github.com/utopia-php/framework) project it is dependency free and can be used as standalone with any other PHP project or framework.
 
-## Getting Started
+## Getting started
 
-Install using composer:
+Install using Composer:
 ```bash
 composer require utopia-php/system
 ```
@@ -36,12 +36,12 @@ echo System::isPPC(); // bool
 echo System::isX86(); // bool
 ```
 
-## System Requirements
+## System requirements
 
 Utopia Framework requires PHP 8.0 or later. We recommend using the latest PHP version whenever possible.
 
-## Supported Methods
-|         | getCPUCores | getCPUUsage | getMemoryTotal | getMemoryFree | getDiskTotal | getDiskFree | getIOUsage | getNetworkUsage |
+## Supported methods
+|         | `getCPUCores` | `getCPUUsage` | `getMemoryTotal` | `getMemoryFree` | `getDiskTotal` | `getDiskFree` | `getIOUsage` | `getNetworkUsage` |
 |---------|-------------|-------------------|----------------|---------------|--------------|-------------|------------|-----------------|
 | Windows | ✅           |                   |                |               | ✅            | ✅           |            |                 |
 | MacOS   | ✅           |                   | ✅              | ✅             | ✅            | ✅           |            |                 |
